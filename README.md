@@ -1,266 +1,226 @@
-# 3Cs - Collaboration System
+# The Three Cs
 
-> Non-hierarchical collaboration platform that reduces coordination overhead to near-zero through AI-augmented collective organization.
+**Connection. Consensus. Coordination.**
 
-**Status:** Ready for MVP Development
-**Approach:** E2E-first TDD with Docker containerization
-
----
-
-## What Is This?
-
-A platform for organizing group activities (trips, conferences, reunions, etc.) where:
-- **Everyone contributes equally** - No organizer vs participant hierarchy
-- **AI handles coordination** - Reduces overhead to near-zero
-- **Groups self-organize** - Scale from 5 → 100+ without burden increase
-- **Flexible structure** - User-defined data model, not rigid templates
-
-**Core Innovation:** The Three Cs framework (Connection, Consensus, Coordination) implemented with AI mediation.
+> What if organizing 100 people was as easy as organizing 5?
 
 ---
 
-## Quick Start
+## The Vision
 
-### Prerequisites
-- Docker & Docker Compose
-- Node.js 20+ (for local development)
+**Collaboration is broken.**
 
-### Run Locally
-```bash
-git clone https://github.com/org/3Cs.git
-cd 3Cs
+Not because we lack tools—we're drowning in them. It's broken because every tool makes the same assumption: *someone* has to be the organizer. Someone has to chase people for decisions. Someone has to manage the spreadsheet. Someone has to send the reminders.
 
-# Start all services
-docker-compose up
+**That someone becomes a bottleneck.** And bottlenecks kill possibility.
 
-# Open browser
-open http://localhost:80
-```
+So we don't plan the camping trip. We don't organize the reunion. We don't start the community project. Not because we don't want to—but because the *coordination overhead* makes it feel impossible.
 
-**Services running:**
-- Frontend (React): http://localhost:80
-- API (Node.js): http://localhost:3000
-- MongoDB: mongodb://localhost:27017
-- WebSocket: ws://localhost:8080
+**What if it didn't have to be this way?**
 
-### Run Tests
-```bash
-# Unit tests (component tests)
-npm test
+What if the **system** handled coordination? What if AI could:
+- Notice when a decision is stalled and gently nudge
+- Understand when someone's preferences aren't being heard
+- Facilitate consensus without anyone needing to "run" the process
+- Make organizing 100 people feel like organizing 5
 
-# E2E tests (full user flows)
-npm run test:e2e
-```
+Not by making decisions FOR us—but by **reducing friction** so we can make decisions TOGETHER.
 
 ---
 
-## Architecture
+## The Three Problems
 
-```
-┌─────────────────────────────────────┐
-│      Load Balancer (Nginx)          │
-└────────────┬────────────────────────┘
-             │
-    ┌────────┴────────┐
-    │                 │
-┌───▼──────┐    ┌─────▼──────┐
-│ Frontend │    │  API       │
-│ React    │    │ Node.js    │
-│ SPA      │    │ + WebSocket│
-└──────────┘    └─────┬──────┘
-                      │
-            ┌─────────┴──────────┐
-            │                    │
-    ┌───────▼─────┐      ┌───────▼──────┐
-    │  MongoDB    │      │   Worker     │
-    │  (4 colls)  │      │  (AI Cron)   │
-    └─────────────┘      └──────────────┘
-```
+Every collaboration requires solving three fundamental problems:
 
-**Technology Stack:**
-- **Database:** MongoDB 7+ (16MB docs, Change Streams)
-- **Backend:** Node.js 20 + TypeScript + Express
-- **Frontend:** React 18 + TypeScript + TailwindCSS
-- **Real-time:** WebSocket + MongoDB Change Streams
-- **AI:** Groq (Llama 3.1 70B) - $0.10/M tokens
-- **Auth:** Supabase Auth (open source, self-hostable)
+### 1. **Connection** — Assembling the Group
+How do you get everyone in the same place? Traditional tools make this hard:
+- Send individual invites (hope people see them)
+- Create accounts (another password to forget)
+- Join the right Slack/Discord/WhatsApp (which one was it again?)
+
+**What if:** Invites were frictionless. One link. No account needed. Viral growth through ease, not spam.
+
+### 2. **Consensus** — Collective Decision-Making
+How do you make decisions when everyone has different preferences?
+- Create a poll (half the people don't respond)
+- Have a meeting (timezone hell)
+- Someone just decides (and others feel unheard)
+
+**What if:** AI could facilitate consensus. Notice when votes are stalled. Synthesize preferences. Suggest compromises. Make sure every voice counts—without endless meetings.
+
+### 3. **Coordination** — Resource Pooling
+Who's bringing what? Who's paying for what? What time are we meeting?
+- Shared spreadsheets (someone has to maintain them)
+- Email threads (information lost in noise)
+- One person tracking everything (back to bottlenecks)
+
+**What if:** The system tracked everything. Automated the logistics. Sent reminders. Collected payments. Made coordination *invisible*.
 
 ---
 
-## Data Model
+## The Promise
 
-### Collections
+**This isn't about replacing human decision-making with AI.**
 
-**1. Collaborations** `/collaborations/{collabId}`
-- Core collaboration data (outcome, activities, consensus)
-- Participants (references to users)
-- System fields (permissions, rules, schema)
-- **Size:** Typically < 500KB
+This is about **augmenting collective organization** so groups can self-organize without hierarchies.
 
-**2. Users** `/users/{userId}`
-- User profiles (name, email, avatar)
-- Preferences
-- **Size:** < 10KB each
+- No designated "organizer" carrying the burden
+- Everyone contributes to the extent they want
+- AI handles the friction (reminders, synthesis, facilitation)
+- Structure emerges from collaboration, not imposed templates
 
-**3. Discussions** `/discussions/{discussionId}`
-- Discussion threads (attached to any object)
-- Messages array
-- **Size:** Grows with messages, typically < 100KB
-
-**4. Audit Logs** `/audit_logs/{logId}`
-- Action history (who, what, when)
-- Used for debugging and rollback
-- **Size:** < 1KB per entry
-
-### Key Design Decisions
-
-✅ **Start with 4 collections** (not single document)
-✅ **Activities stay in main doc** (core to workflow)
-✅ **Discussions separate** (grow unbounded)
-✅ **Audit logs separate** (optional history)
+**The promise:** Reduce coordination overhead to near-zero. Enable groups to attempt things they never would have tried before.
 
 ---
 
-## Development Workflow
+## Why This Matters
 
-### E2E-First TDD
+**Because coordination overhead is the enemy of possibility.**
 
-```
-1. Human: "Add feature X"
-   ↓
-2. AI: Writes E2E test (would pass if feature exists)
-   ↓
-3. Human: Reviews test - "Yes, correct"
-   ↓
-4. AI: Runs test → ❌ RED
-   ↓
-5. AI: Implements feature to make test pass
-   ↓
-6. AI: Runs test → ✅ GREEN
-   ↓
-7. Human: Validates UX
-```
+How many group trips didn't happen because "organizing it would be too much work"?
 
-**Tests are the spec.** If tests pass, feature is done.
+How many community projects died because "someone would need to run it"?
 
-### Test Structure
+How many reunions, conferences, collaborations never materialized—not from lack of interest, but from coordination friction?
 
-**Unit Tests** (co-located with code)
-```
-/frontend/components/DatePicker/
-  DatePicker.tsx
-  DatePicker.test.tsx  ← Lives with component
-```
+**Every time coordination is hard, we choose not to try.**
 
-**E2E Tests** (separate)
-```
-/e2e-tests/
-  user-creates-collaboration.test.js
-  user-adds-activity.test.js
-  user-votes-on-consensus.test.js
-```
+We're leaving possibilities on the table. Connections unmade. Experiences unlived. Communities unformed.
+
+**What if we could unlock those possibilities?**
 
 ---
 
-## Core Concepts
+## The Approach
 
-### Actions System
-All changes happen through standardized actions:
-- `updateField(path, value)` - Modify any field
-- `addItem(path, item)` - Add to array
-- `createConsensusPoint(...)` - Start vote
-- `vote(consensusPath, option)` - Cast vote
+### Non-Hierarchical by Design
+No organizers. No participants. Just **collaborators** who contribute equally.
 
-**Users and AI call identical actions** - no AI backdoor.
+### AI as Partner, Not Director
+The system suggests, reminds, facilitates—but humans decide. Always.
 
-### Rules vs AI
+### Flexible Structure
+User-defined data model. No templates forcing you into predetermined shapes. Collaboration defines itself.
 
-**Rules:** Deterministic logic (fast, predictable)
-- "If 5 signups → auto-schedule activity"
-- "If budget > $500 → block new expenses"
+### Action Uniformity
+AI and humans call the same actions. No AI backdoor. Same permissions. Same constraints. Transparent.
 
-**AI:** Contextual judgment (smart, flexible)
-- "Is this consensus stalled? Should I remind people?"
-- "What activities would this participant enjoy?"
-
-**Two AI Modes:**
-1. **Task-Specific** - User asks for help ("Help me pick dates")
-2. **Daily Check-In** - System reviews health, suggests actions
-
-### Real-Time Sync
-- MongoDB Change Streams detect updates
-- WebSocket broadcasts to connected clients
-- React updates UI (< 2 sec latency)
+### Emergent Organization
+Structure evolves with needs. The system adapts to how groups *actually* work.
 
 ---
 
-## Documentation
+## The 10-Year Vision
 
-📁 **Detailed docs in `/docs`:**
+**Become the default way humans organize collective action.**
 
-- [**Core Philosophy**](docs/PHILOSOPHY.md) - Three Cs framework, vision
-- [**Architecture Deep Dive**](docs/ARCHITECTURE.md) - Containers, data flow
-- [**Data Model**](docs/DATA_MODEL.md) - Collections, schema, indexes
-- [**Actions Reference**](docs/ACTIONS.md) - All available actions
-- [**Rules & AI**](docs/RULES_AND_AI.md) - Boundary matrix, when to use which
-- [**Testing Guide**](docs/TESTING.md) - E2E-first approach, test helpers
-- [**API Reference**](docs/API.md) - Endpoints, WebSocket protocol
-- [**Authentication**](docs/AUTHENTICATION.md) - Supabase Auth integration
-- [**Error Handling**](docs/ERROR_HANDLING.md) - Failure modes, resilience
-- [**Deployment**](docs/DEPLOYMENT.md) - Production setup, scaling
+Any time a group needs to:
+- Plan an event
+- Pool resources
+- Make collective decisions
+- Coordinate logistics
 
----
+They reach for this. Not because it has the most features—but because it has the **least friction**.
 
-## Project Status
+**Examples:**
+- 🏕️ Weekend camping trips (30 people, zero organizing burden)
+- 🎉 Family reunions (50 people across timezones)
+- 🏗️ Community projects (pooling time, money, skills)
+- 📚 Conference planning (hundreds of people, self-organizing)
+- 🌍 Neighborhood initiatives (from idea to action, faster)
 
-### ✅ Completed
-- Architecture design
-- Technology stack selection
-- Data model (4 collections)
-- Testing strategy
-- Core concepts definition
-
-### 🚧 In Progress
-- First E2E test: "User creates collaboration with AI help"
-- Test infrastructure setup (Docker test containers)
-- Basic API scaffolding
-
-### 📋 Next Steps
-1. Write first E2E test
-2. Implement to make it pass
-3. Iterate with more features
-4. Add unit tests for components
-5. Deploy MVP
+**Scale without burden:** Going from 5 → 50 → 500 people requires the same individual effort. AI handles the complexity.
 
 ---
 
-## Contributing
+## What Makes This Different
 
-This project is developed using **AI-augmented TDD**:
-1. Describe feature in plain English
-2. AI writes E2E test
-3. Review test for correctness
-4. AI implements feature
-5. Validate UX
+### Traditional Collaboration Tools
+- Rigid templates (event planning, project management)
+- Designated organizer (bottleneck)
+- Manual coordination (chase people for answers)
+- Siloed functionality (separate tools for chat, polls, payments)
 
-**Before contributing:**
-- Read [Testing Guide](docs/TESTING.md)
-- Check [Architecture](docs/ARCHITECTURE.md)
-- Follow E2E-first workflow
+### The 3Cs
+- User-defined structure (shapes itself)
+- Distributed responsibility (everyone contributes)
+- AI-mediated coordination (system nudges and facilitates)
+- Unified collaboration object (everything in one place)
 
----
-
-## License
-
-MIT
+**The difference:** Not just better tools. A different *philosophy* of how groups work together.
 
 ---
 
-## Questions?
+## How It Feels
 
-- **Architecture questions?** See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- **How to add a feature?** See [docs/TESTING.md](docs/TESTING.md)
-- **API reference?** See [docs/API.md](docs/API.md)
-- **Why these choices?** See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md)
+Imagine planning a 30-person camping trip where:
 
-**Contact:** [Your contact info]
+- **You describe what you want** ("Weekend camping trip in June")
+- **System structures itself** (dates to decide, activities to plan, logistics to coordinate)
+- **Everyone contributes** (suggest activities, vote on dates, sign up for tasks)
+- **AI facilitates quietly** ("Only 3 of 10 have voted, gentle reminder sent")
+- **Decisions emerge** (consensus reached without anyone "running" meetings)
+- **Logistics happen** (who's bringing what, who's paid, all tracked automatically)
+
+**You never feel like the organizer.** Nobody does. It just... *happens*.
+
+That's the promise.
+
+---
+
+## The Technology
+
+**Built on:**
+- MongoDB (flexible data, 16MB documents, real-time sync)
+- Node.js + React (modern, scalable, familiar)
+- Groq AI (cheap, fast inference for facilitation)
+- Docker (easy deployment, development/production parity)
+
+**Development approach:**
+- E2E-first TDD (tests are the spec)
+- AI-augmented development (Claude helps build)
+- Progressive enhancement (works without AI, better with it)
+
+**[→ Technical Details in /docs](docs/)**
+
+---
+
+## Get Involved
+
+This is **early**. The vision is clear, implementation is beginning.
+
+**What we need:**
+- People who believe in the vision
+- Developers who want to build it
+- Groups willing to try it (and break it)
+- Feedback on what coordination friction *actually* feels like
+
+**[→ See the Vision](docs/PHILOSOPHY.md) | [→ Understand the Architecture](docs/ARCHITECTURE.md) | [→ Start Building](docs/TESTING.md)**
+
+---
+
+## The Heart of It
+
+This isn't about building another productivity tool.
+
+This is about **making human collaboration effortless**.
+
+About enabling groups to attempt things they never would have tried.
+
+About removing the barriers that keep us from coming together.
+
+**Because when coordination is easy, possibility explodes.**
+
+When organizing 100 people feels like organizing 5, we attempt things we never would have.
+
+When consensus emerges without endless meetings, we make better decisions faster.
+
+When AI handles the friction, we focus on what matters: **the collaboration itself**.
+
+---
+
+**That's the promise. That's the vision. That's why we're building this.**
+
+Want to help make it real?
+
+**[Read the Full Vision →](docs/PHILOSOPHY.md)**
