@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git update-index:*)",
+      "Bash(git restore:*)",
+      "Bash(git checkout:*)",
+      "Bash(git config:*)",
+      "Bash(cat:*)",
+      "Bash(nul)",
+      "Bash(Remove-Item -Recurse -Force .git)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
