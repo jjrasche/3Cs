@@ -7,7 +7,14 @@
       "Bash(git config:*)",
       "Bash(cat:*)",
       "Bash(nul)",
-      "Bash(Remove-Item -Recurse -Force .git)"
+      "Bash(Remove-Item -Recurse -Force .git)",
+      "Bash(claude --version:*)",
+      "Bash(npm show:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run test:extraction:*)",
+      "Bash(npm run test:synthesis:*)",
+      "Bash(npx ts-node:*)"
     ],
     "deny": [],
     "ask": []
