@@ -1,10 +1,38 @@
 /**
- * Core data structures for the Two Operations model:
+ * Core data structures for the 3Cs model:
+ *
+ * Two core LLM operations:
  * 1. Extraction - Pull concerns/desires from participants
  * 2. Synthesis - Generate proposals from extracted data
+ *
+ * Data flow:
+ * Conversation (ephemeral) → Extraction → Constraint (functional) → Collaboration
  */
 
-// --- Base Types ---
+// --- User Profile ---
+
+export interface ConversationTurn {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface UserProfile {
+  odId: string;
+  learnedConstraints: string[];  // patterns from past collaborations
+  // conversationHistory stored separately in conversations collection
+}
+
+// --- Constraints ---
+
+export interface Constraint {
+  text: string;              // functional wording
+  anonymous: boolean;        // whether to show who
+  participantId: string;     // for removal/edit, even if anonymous
+  addedAt: Date;
+}
+
+// --- Legacy types (used in hypothesis tests) ---
 
 export interface Concern {
   participant: string;     // who raised it
@@ -33,10 +61,12 @@ export interface Collaboration {
   creator: string;
   participants: string[];
 
-  // Extraction accumulates these
+  // Extraction accumulates these (legacy format for hypothesis tests)
   concerns: Concern[];
   desires: Desire[];
-  constraints: string[];
+
+  // Confirmed constraints from participants
+  constraints: Constraint[];
 }
 
 // --- Operation Inputs/Outputs ---

@@ -121,6 +121,57 @@ AI transforms raw input into structured understanding:
 
 ---
 
+## From Conversation to Constraints
+
+AI extracts understanding through conversation, but what persists is functional and actionable.
+
+### The Flow
+
+```
+Conversation (private, ephemeral)
+         ↓
+    Extraction (AI understands underlying need)
+         ↓
+    Constraint (functional wording)
+         ↓
+    User confirms (anonymous or attributed)
+         ↓
+Collaboration (shared, actionable)
+```
+
+### Key Distinctions
+
+| Conversation | Constraint |
+|--------------|------------|
+| "I've had bad experiences with rides" | "Needs reliable transport - prefers public transit or confirmed carpool" |
+| Ephemeral, deletable | Persisted on collaboration |
+| Tied to user | Tied to collaboration |
+| Psychological depth | Functional and direct |
+
+**The AI's role is diagnostic, not therapeutic.** It digs deep to understand the underlying need, but outputs actionable constraints that coordination can work with. The bedrock informs the constraint; it doesn't become the constraint.
+
+### Anonymous vs Attributed
+
+Users choose how to add constraints:
+
+- **Attributed:** "Sarah needs bus access" - lets others offer solutions
+- **Anonymous:** "Someone in this group can't be alone with one person" - protects privacy while informing coordination
+
+Both are actionable. Anonymous constraints still have a `participantId` for the owner to edit/remove, but the group doesn't see who.
+
+### User Profile
+
+Conversations and learned patterns accumulate in the user profile:
+
+- **Conversation history:** Private, deletable, never on the collaboration
+- **Learned constraints:** Patterns from past collaborations
+
+When joining a new collaboration, the system suggests relevant constraints from the profile. User confirms which apply.
+
+**Result:** Returning users don't re-explain. The system already understands their patterns.
+
+---
+
 ## The Persuasion Loop
 
 How AI facilitates convergence on consensus:
