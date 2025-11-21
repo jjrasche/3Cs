@@ -14,7 +14,9 @@
       "Bash(npm install:*)",
       "Bash(npm run test:extraction:*)",
       "Bash(npm run test:synthesis:*)",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
