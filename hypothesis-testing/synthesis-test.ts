@@ -91,7 +91,7 @@ export function buildSynthesisUserPrompt(input: SynthesisInput): string {
     .join('\n') || '- None';
 
   const constraintsList = collaboration.constraints
-    .map(c => `- ${c}`)
+    .map(c => `- ${typeof c === 'string' ? c : c.text}`)
     .join('\n') || '- None';
 
   const questionsList = questionsToResolve
@@ -209,9 +209,12 @@ export const POTLUCK_AFTER_EXTRACTION: Collaboration = {
     }
   ],
 
-  constraints: [
-    "All food must be clearly labeled for allergens (nut-free safety)"
-  ]
+  constraints: [{
+    text: "All food must be clearly labeled for allergens (nut-free safety)",
+    anonymous: false,
+    participantId: "jordan",
+    addedAt: new Date()
+  }]
 };
 
 export const SYNTHESIS_TEST_INPUT: SynthesisInput = {

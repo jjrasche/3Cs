@@ -5,7 +5,7 @@
  * in context of the collaboration?
  */
 
-import { Collaboration, ExtractionInput, ExtractionOutput } from './types';
+import { Collaboration, Constraint, ExtractionInput, ExtractionOutput } from './types';
 
 // --- The Extraction Prompt ---
 
@@ -26,6 +26,17 @@ For each concern/desire:
   - 3: Important - I really need this addressed
   - 4: Non-negotiable - I will not participate without this
 - Propose a question to dig deeper toward the emotional bedrock (why this really matters)
+- Generate a functional constraint: direct, actionable wording that coordination can use
+
+IMPORTANT - Constraint wording:
+- Describe what's needed, not why
+- Be direct and actionable
+- Avoid psychological language
+- Examples:
+  - Bad: "Has anxiety about being forgotten"
+  - Good: "Needs reliable transport with confirmed pickup time"
+  - Bad: "Worried about money"
+  - Good: "Budget under $20 per person"
 
 Be careful to:
 - Only extract what's actually there (don't over-interpret)
@@ -41,7 +52,8 @@ Respond in JSON format matching this structure:
       "summary": "brief description",
       "underlying": "the deeper need/want",
       "intensity": 1-4,
-      "digDeeper": "question to ask next to get to bedrock"
+      "digDeeper": "question to ask next to get to bedrock",
+      "constraint": "functional wording for coordination"
     }
   ],
   "newConstraints": ["things that should apply to everyone"],
@@ -63,7 +75,7 @@ export function buildExtractionUserPrompt(input: ExtractionInput): string {
     : '- None yet';
 
   const constraints = collaboration.constraints.length > 0
-    ? collaboration.constraints.map(c => `- ${c}`).join('\n')
+    ? collaboration.constraints.map(c => `- ${typeof c === 'string' ? c : c.text}`).join('\n')
     : '- None yet';
 
   return `## Collaboration Context
@@ -225,7 +237,12 @@ export const TEST_CASES: ExtractionInput[] = [
           intensity: "medium"
         }
       ],
-      constraints: ["All food must be clearly labeled for allergens"]
+      constraints: [{
+        text: "All food must be clearly labeled for allergens",
+        anonymous: false,
+        participantId: "jordan",
+        addedAt: new Date()
+      }]
     },
     participant: "Pat",
     conversation: "Yeah sure, I can come. Weekends are better for me. I don't really cook much so I hope I can just bring drinks or something simple."

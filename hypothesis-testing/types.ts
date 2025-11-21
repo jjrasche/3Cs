@@ -86,6 +86,7 @@ export interface Extraction {
   underlying: string;      // deeper need/want
   intensity: number;       // 1-4 (4 = non-negotiable)
   digDeeper: string;       // question to ask next
+  constraint: string;      // functional wording for collaboration
 }
 
 // Extraction: What the LLM produces

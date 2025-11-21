@@ -99,6 +99,7 @@ async function runExtractionTests() {
             console.log(`   Underlying: ${e.underlying}`);
             console.log(`   Intensity: ${e.intensity}/4`);
             console.log(`   Dig deeper: "${e.digDeeper}"`);
+            console.log(`   📋 Constraint: "${e.constraint}"`);
             console.log('');
           });
         } else {
