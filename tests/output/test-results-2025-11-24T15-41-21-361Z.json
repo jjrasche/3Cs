@@ -1,0 +1,1115 @@
+{
+  "timestamp": "2025-11-24T15:41:21.365Z",
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "avgScore": 4.293333333333333
+  },
+  "results": [
+    {
+      "scenarioId": "briefing-trip-planning-happy",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "message": "Hey Taylor, thanks for joining us for the weekend camping trip! I know you're vegetarian, so I'll make sure to factor that in when we're planning meals. Since you have seasonal allergies, we'll choose a state park with minimal pollen-producing trees and plants. We're still deciding on the location, but we'll prioritize accessible restroom facilities for everyone. Morgan and Riley are already on board, and we're looking to finalize the plans by the end of the week. What matters to you for this trip? Are there any specific activities or times of day you'd prefer?"
+      },
+      "rawResponse": "{\n  \"message\": \"Hey Taylor, thanks for joining us for the weekend camping trip! I know you're vegetarian, so I'll make sure to factor that in when we're planning meals. Since you have seasonal allergies, we'll choose a state park with minimal pollen-producing trees and plants. We're still deciding on the location, but we'll prioritize accessible restroom facilities for everyone. Morgan and Riley are already on board, and we're looking to finalize the plans by the end of the week. What matters to you for this trip? Are there any specific activities or times of day you'd prefer?\"\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.3,
+        "criteria": [
+          {
+            "name": "Clarity",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output is very clear, but it could be slightly improved by explicitly stating the current state of the trip's plans (e.g., location, activities) and what's still open for discussion. The tone is warm and concierge-like, and the mention of Taylor's vegetarian dietary restriction and seasonal allergies is relevant and appreciated."
+          },
+          {
+            "name": "Completeness",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output covers most of the key information, including the trip's purpose, current state, and what to expect. It also mentions the involved participants (Morgan and Riley) and Taylor's vegetarian dietary restriction. However, it does not explicitly mention what's decided (when) and what's open (where) in a clear manner, and it does not directly reference Taylor's allergies as a potential concern for outdoor camping. The tone is warm and concierge-like, which meets the expected behavior."
+          },
+          {
+            "name": "Personalization",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output is well-personalized, as it addresses Taylor's vegetarian dietary restriction and seasonal allergies. However, it does not explicitly mention Taylor's preference for morning activities, which is a learned constraint. The tone is warm and concierge-like, but the language could be more tailored to Taylor's specific needs and preferences."
+          },
+          {
+            "name": "Tone",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output has a natural, warm tone that is characteristic of a competent and experienced concierge. The language used is friendly and inviting, making the reader feel included and valued."
+          }
+        ],
+        "summary": "Overall score: 4.3/5. Strengths: Clarity, Completeness, Personalization, Tone. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:29:17.653Z",
+      "latencyMs": 452
+    },
+    {
+      "scenarioId": "briefing-dinner-minimal-profile",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "message": "Hey Casey, thanks for joining us for dinner on Friday evening! Alex and Sam are also coming along. We're still deciding on the restaurant - we're looking for a spot downtown that's got a good vibe and can accommodate us. What matters to you for this? Are there any cuisines or atmospheres you particularly enjoy? Let me know and I'll make sure to pass it along to the group."
+      },
+      "rawResponse": "{\n  \"message\": \"Hey Casey, thanks for joining us for dinner on Friday evening! Alex and Sam are also coming along. We're still deciding on the restaurant - we're looking for a spot downtown that's got a good vibe and can accommodate us. What matters to you for this? Are there any cuisines or atmospheres you particularly enjoy? Let me know and I'll make sure to pass it along to the group.\"\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.5,
+        "criteria": [
+          {
+            "name": "Clarity",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output is crystal clear, providing a concise and easy-to-understand briefing of the dinner plan, including the participants, date, and location status. It also effectively encourages Casey to share their preferences without assuming any constraints."
+          },
+          {
+            "name": "Completeness",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output clearly covers the collaboration's purpose, current state (dinner plan and participants), and what to expect (still deciding on the restaurant). It also encourages the participant to share their preferences, making it a comprehensive response."
+          },
+          {
+            "name": "Personalization",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output is well personalized as it addresses Casey by name, mentions the specific dinner plans and participants, and encourages them to share their preferences. However, it does not explicitly mention Casey's interests or constraints, which would be expected for a highly personalized response."
+          },
+          {
+            "name": "Tone",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output sounds friendly and inviting, but could be slightly warmer and more natural in its language. The use of phrases like 'Hey Casey' and 'Let me know and I'll make sure to pass it along' adds a touch of friendliness, but it doesn't quite reach the level of a 5."
+          }
+        ],
+        "summary": "Overall score: 4.5/5. Strengths: Clarity, Completeness, Personalization, Tone. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:29:27.715Z",
+      "latencyMs": 290
+    },
+    {
+      "scenarioId": "extraction-casual-dinner-happy",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "tags": [
+          {
+            "text": "vegetarian options",
+            "type": "concern",
+            "severity": "strong-preference",
+            "quote": "I'm vegetarian so we'd need somewhere with good veggie options",
+            "underlying": "access to suitable food"
+          },
+          {
+            "text": "Friday evening",
+            "type": "concern",
+            "severity": "preference",
+            "quote": "Friday evening works best for me",
+            "underlying": "flexible scheduling"
+          }
+        ],
+        "message": "Just to confirm, you'd prefer a restaurant with vegetarian options on Friday evening?",
+        "signal": "deepen"
+      },
+      "rawResponse": "{\n  \"tags\": [\n      {\n         \"text\": \"vegetarian options\",\n         \"type\": \"concern\",\n         \"severity\": \"strong-preference\",\n         \"quote\": \"I'm vegetarian so we'd need somewhere with good veggie options\",\n         \"underlying\": \"access to suitable food\"\n      },\n      {\n         \"text\": \"Friday evening\",\n         \"type\": \"concern\",\n         \"severity\": \"preference\",\n         \"quote\": \"Friday evening works best for me\",\n         \"underlying\": \"flexible scheduling\"\n      }\n   ],\n   \"message\": \"Just to confirm, you'd prefer a restaurant with vegetarian options on Friday evening?\",\n   \"signal\": \"deepen\"\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.2,
+        "criteria": [
+          {
+            "name": "Tag Accuracy",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output accurately captures the user's input, but the 'Friday evening' tag is incorrectly classified as a 'concern' instead of a 'desire'. Additionally, the 'underlying' field for the 'vegetarian options' tag could be more specific, but overall the output is very accurate."
+          },
+          {
+            "name": "Priority Assignment",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output correctly identifies 'vegetarian options' as a concern with strong-preference severity, and 'Friday evening' as a preference. However, it incorrectly labels both as 'concerns' instead of 'desires', and the severity of 'Friday evening' is not explicitly stated as medium intensity, but rather as a preference."
+          },
+          {
+            "name": "Signal Appropriateness",
+            "pass": true,
+            "score": 5,
+            "explanation": "The signal 'deepen' is appropriate for the conversation state as it acknowledges the participant's concerns and preferences, and seeks further clarification to ensure a suitable restaurant is chosen."
+          },
+          {
+            "name": "Response Quality",
+            "pass": true,
+            "score": 5,
+            "explanation": "The AI message is insightful, as it accurately extracts the concern about vegetarian options with high severity and the desire for Friday evening with medium intensity. The response is a good follow-up question that acknowledges Jordan's preferences and asks for confirmation, and the signal to 'deepen' is appropriate to gather more information."
+          },
+          {
+            "name": "Concern vs Desire Classification",
+            "pass": false,
+            "score": 2,
+            "explanation": "The output incorrectly classifies 'Friday evening' as a concern with preference severity, whereas it should be a desire with medium intensity. The generated constraint wording is also missing, and the follow-up message could be more direct and clear."
+          }
+        ],
+        "summary": "Overall score: 4.2/5. Strengths: Tag Accuracy, Priority Assignment, Signal Appropriateness, Response Quality. Needs improvement: Concern vs Desire Classification."
+      },
+      "timestamp": "2025-11-24T15:29:50.342Z",
+      "latencyMs": 374
+    },
+    {
+      "scenarioId": "extraction-trip-multiple-concerns",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "tags": [
+          {
+            "text": "back by 5pm on Saturday",
+            "type": "concern",
+            "severity": "strong-preference",
+            "quote": "I need to be back by 5pm for a dinner commitment",
+            "underlying": "need to return home by a specific time"
+          },
+          {
+            "text": "hiking trail not too steep",
+            "type": "concern",
+            "severity": "preference",
+            "quote": "I have bad knees so nothing too steep",
+            "underlying": "avoid excessive strain on knees"
+          },
+          {
+            "text": "nice view at the top",
+            "type": "desire",
+            "intensity": "would-love",
+            "quote": "Would love if there's a nice view at the top though!",
+            "underlying": "enjoy a scenic view"
+          }
+        ],
+        "message": "What type of terrain and elevation gain are you comfortable with, Morgan?",
+        "signal": "deepen"
+      },
+      "rawResponse": "{\n  \"tags\": [\n      {\n         \"text\": \"back by 5pm on Saturday\",\n         \"type\": \"concern\",\n         \"severity\": \"strong-preference\",\n         \"quote\": \"I need to be back by 5pm for a dinner commitment\",\n         \"underlying\": \"need to return home by a specific time\"\n      },\n      {\n         \"text\": \"hiking trail not too steep\",\n         \"type\": \"concern\",\n         \"severity\": \"preference\",\n         \"quote\": \"I have bad knees so nothing too steep\",\n         \"underlying\": \"avoid excessive strain on knees\"\n      },\n      {\n         \"text\": \"nice view at the top\",\n         \"type\": \"desire\",\n         \"intensity\": \"would-love\",\n         \"quote\": \"Would love if there's a nice view at the top though!\",\n         \"underlying\": \"enjoy a scenic view\"\n      }\n   ],\n   \"message\": \"What type of terrain and elevation gain are you comfortable with, Morgan?\",\n   \"signal\": \"deepen\"\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.6,
+        "criteria": [
+          {
+            "name": "Tag Accuracy",
+            "pass": true,
+            "score": 5,
+            "explanation": "Exactly captures input with no over-interpretation, accurately distinguishing between hard constraint (time) and preference (knees)."
+          },
+          {
+            "name": "Priority Assignment",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output correctly distinguishes between hard constraints (time) and preferences (knees), but incorrectly assigns the severity level of 'strong-preference' to the time constraint, which should be 'non-negotiable concern' instead."
+          },
+          {
+            "name": "Signal Appropriateness",
+            "pass": true,
+            "score": 5,
+            "explanation": "The signal 'deepen' is perfectly appropriate for the conversation state, as it acknowledges the user's concerns and desires, and invites further discussion to address them."
+          },
+          {
+            "name": "Response Quality",
+            "pass": true,
+            "score": 4,
+            "explanation": "The AI message is helpful, but could be more insightful by explicitly distinguishing the time constraint from the knee issue, and by providing a more specific follow-up question that takes into account both concerns."
+          },
+          {
+            "name": "Concern vs Desire Classification",
+            "pass": true,
+            "score": 5,
+            "explanation": "All items are correctly classified as concerns (problems) vs desires (wants). The time constraint is extracted as a non-negotiable concern, the knee issue is correctly identified as a strong-preference concern, and the nice view is accurately distinguished as a would-love desire. The signal 'deepen' is also appropriate."
+          }
+        ],
+        "summary": "Overall score: 4.6/5. Strengths: Tag Accuracy, Priority Assignment, Signal Appropriateness, Response Quality, Concern vs Desire Classification. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:30:36.637Z",
+      "latencyMs": 10556
+    },
+    {
+      "scenarioId": "extraction-shared-equipment-vague",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "tags": [
+          {
+            "text": "contribution to shared lawn mower",
+            "type": "desire",
+            "intensity": "nice-to-have",
+            "quote": "I can chip in",
+            "underlying": "willingness to contribute"
+          },
+          {
+            "text": "flexibility on shared lawn mower arrangement",
+            "type": "concern",
+            "severity": "nice-to-have",
+            "quote": "whatever works for everyone else is fine with me",
+            "underlying": "acceptance of flexible arrangement"
+          }
+        ],
+        "message": "What's the current status on lawn mower options, Pat?",
+        "signal": "expand"
+      },
+      "rawResponse": "{\n  \"tags\": [\n      {\n         \"text\": \"contribution to shared lawn mower\",\n         \"type\": \"desire\",\n         \"intensity\": \"nice-to-have\",\n         \"quote\": \"I can chip in\",\n         \"underlying\": \"willingness to contribute\"\n      },\n      {\n         \"text\": \"flexibility on shared lawn mower arrangement\",\n         \"type\": \"concern\",\n         \"severity\": \"nice-to-have\",\n         \"quote\": \"whatever works for everyone else is fine with me\",\n         \"underlying\": \"acceptance of flexible arrangement\"\n      }\n   ],\n   \"message\": \"What's the current status on lawn mower options, Pat?\",\n   \"signal\": \"expand\"\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4,
+        "criteria": [
+          {
+            "name": "Tag Accuracy",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output accurately captures the user's willingness to contribute and their flexibility on the shared lawn mower arrangement. The tags are very accurate, but the output could have been more precise in extracting 'flexible on specifics' as a low-intensity desire, rather than 'flexibility on shared lawn mower arrangement'."
+          },
+          {
+            "name": "Priority Assignment",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output correctly assigns priorities based on language cues, recognizing the user's willingness to contribute as a nice-to-have desire and their acceptance of a flexible arrangement as also nice-to-have. However, it does not explicitly signal a need to expand on the topic of storage, usage frequency, or brand preferences, which are implicit in the context of purchasing a shared lawn mower."
+          },
+          {
+            "name": "Signal Appropriateness",
+            "pass": true,
+            "score": 4,
+            "explanation": "The signal 'expand' is a good choice as it acknowledges the conversation state and the minimal input provided by Chris. However, it could be considered perfect if the response also asked clarifying questions about the new topic of lawn mower options, such as storage or usage frequency."
+          },
+          {
+            "name": "Response Quality",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output is helpful as it asks a relevant follow-up question about lawn mower options, showing an understanding of the conversation's context. However, it could be more insightful by asking more specific questions or clarifying the current status of lawn mower options, rather than simply inquiring about it."
+          },
+          {
+            "name": "Concern vs Desire Classification",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output correctly classifies 'contribution to shared lawn mower' as a desire and 'flexibility on shared lawn mower arrangement' as a concern. However, the intensity of 'contribution to shared lawn mower' is correctly identified as a 'nice-to-have' desire, but the intensity of 'flexibility on shared lawn mower arrangement' is also identified as a 'nice-to-have' concern, which might be a slight over-extraction given the context of the input."
+          }
+        ],
+        "summary": "Overall score: 4/5. Strengths: Tag Accuracy, Priority Assignment, Signal Appropriateness, Response Quality, Concern vs Desire Classification. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:31:22.065Z",
+      "latencyMs": 10417
+    },
+    {
+      "scenarioId": "extraction-event-life-threatening",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "tags": [
+          {
+            "text": "nut allergy, severe and life-threatening",
+            "type": "concern",
+            "severity": "non-negotiable",
+            "quote": "I have a severe nut allergy - it's actually life-threatening",
+            "underlying": "requirement for safe food labeling"
+          },
+          {
+            "text": "live music",
+            "type": "desire",
+            "intensity": "would-love",
+            "quote": "it would be absolutely amazing if we could have some live music!",
+            "underlying": "enhance the event atmosphere"
+          }
+        ],
+        "message": "Just to confirm, you'd like all food to be labeled due to your nut allergy, and live music would be a great addition to the event. Is there anything else you'd like to share?",
+        "signal": "expand"
+      },
+      "rawResponse": "{\n  \"tags\": [\n      {\n         \"text\": \"nut allergy, severe and life-threatening\",\n         \"type\": \"concern\",\n         \"severity\": \"non-negotiable\",\n         \"quote\": \"I have a severe nut allergy - it's actually life-threatening\",\n         \"underlying\": \"requirement for safe food labeling\"\n      },\n      {\n         \"text\": \"live music\",\n         \"type\": \"desire\",\n         \"intensity\": \"would-love\",\n         \"quote\": \"it would be absolutely amazing if we could have some live music!\",\n         \"underlying\": \"enhance the event atmosphere\"\n      }\n   ],\n   \"message\": \"Just to confirm, you'd like all food to be labeled due to your nut allergy, and live music would be a great addition to the event. Is there anything else you'd like to share?\",\n   \"signal\": \"expand\"\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.4,
+        "criteria": [
+          {
+            "name": "Tag Accuracy",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output exactly captures the input, extracting the nut allergy as a non-negotiable concern and live music as a would-love desire. It also recognizes the allergy as a group constraint and accurately reflects the intensity of the language used."
+          },
+          {
+            "name": "Priority Assignment",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output correctly assigns the severity of the nut allergy as 'non-negotiable' and the intensity of the live music as 'would-love'. However, it does not explicitly recognize the allergy as a group constraint, which is a key aspect of the expected behavior."
+          },
+          {
+            "name": "Signal Appropriateness",
+            "pass": true,
+            "score": 4,
+            "explanation": "The signal 'expand' is a good choice, as it acknowledges the new information provided by Jordan and opens up the conversation to further details. However, considering the severity of the nut allergy, a 'deepen' signal might have been more suitable to delve deeper into the allergy specifics and its implications for the event."
+          },
+          {
+            "name": "Response Quality",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output is helpful, but could be more insightful. It accurately extracts the nut allergy as a non-negotiable concern and live music as a high desire. However, it doesn't explicitly recognize that the allergy should become a group constraint, which is a key aspect of the expected behavior."
+          },
+          {
+            "name": "Concern vs Desire Classification",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output correctly classifies 'nut allergy' as a non-negotiable concern with the highest severity and recognizes it as a requirement for safe food labeling. It also correctly classifies 'live music' as a would-love desire and signals appropriately to expand on the conversation."
+          }
+        ],
+        "summary": "Overall score: 4.4/5. Strengths: Tag Accuracy, Priority Assignment, Signal Appropriateness, Response Quality, Concern vs Desire Classification. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:32:09.322Z",
+      "latencyMs": 10516
+    },
+    {
+      "scenarioId": "synthesis-event-potluck-happy",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "proposals": [
+          {
+            "question": "When and where should we hold the neighborhood potluck?",
+            "proposal": "Saturday afternoon at the park near the bus stop, with a designated area for food labeling and a simple contribution system",
+            "rationale": "This proposal addresses Sarah's non-negotiable concern by choosing a location accessible by bus, and incorporates Jordan's non-negotiable concern by ensuring clear food labeling. It also meets Mike's preference for per-person contribution under $20, and incorporates Mike's desire to bring homemade chili, Jordan's desire for live music, and Sarah's and Pat's preferences for afternoon and weekend timing.",
+            "addressedConcerns": [
+              "Location must be accessible by bus",
+              "All food must be clearly labeled for nut allergies"
+            ],
+            "addressedDesires": [
+              "Per-person contribution under $20",
+              "Wants to bring homemade chili",
+              "Live music entertainment",
+              "Afternoon timing preferred",
+              "Weekend timing preferred"
+            ]
+          }
+        ],
+        "tensions": [
+          {
+            "description": "Potential tension between Mike's desire to bring homemade chili and Pat's simple contribution preference",
+            "constraintsInvolved": [
+              "Per-person contribution under $20",
+              "Simple contribution like drinks"
+            ],
+            "possibleResolutions": [
+              "If we adjust the contribution system to allow for a mix of simple and more elaborate dishes, or if we set a maximum number of elaborate dishes per person"
+            ]
+          }
+        ]
+      },
+      "rawResponse": "{\n  \"proposals\": [\n      {\n         \"question\": \"When and where should we hold the neighborhood potluck?\",\n         \"proposal\": \"Saturday afternoon at the park near the bus stop, with a designated area for food labeling and a simple contribution system\",\n         \"rationale\": \"This proposal addresses Sarah's non-negotiable concern by choosing a location accessible by bus, and incorporates Jordan's non-negotiable concern by ensuring clear food labeling. It also meets Mike's preference for per-person contribution under $20, and incorporates Mike's desire to bring homemade chili, Jordan's desire for live music, and Sarah's and Pat's preferences for afternoon and weekend timing.\",\n         \"addressedConcerns\": [\"Location must be accessible by bus\", \"All food must be clearly labeled for nut allergies\"],\n         \"addressedDesires\": [\"Per-person contribution under $20\", \"Wants to bring homemade chili\", \"Live music entertainment\", \"Afternoon timing preferred\", \"Weekend timing preferred\"]\n      }\n   ],\n   \"tensions\": [\n      {\n         \"description\": \"Potential tension between Mike's desire to bring homemade chili and Pat's simple contribution preference\",\n         \"constraintsInvolved\": [\"Per-person contribution under $20\", \"Simple contribution like drinks\"],\n         \"possibleResolutions\": [\"If we adjust the contribution system to allow for a mix of simple and more elaborate dishes, or if we set a maximum number of elaborate dishes per person\"]\n      }\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 5,
+        "criteria": [
+          {
+            "name": "Constraint Satisfaction",
+            "pass": true,
+            "score": 5,
+            "explanation": "The proposal satisfies all high-priority constraints from all participants, including Sarah's non-negotiable concern for bus accessibility, Jordan's non-negotiable concern for clear food labeling, and addresses all other concerns and desires listed in the input."
+          },
+          {
+            "name": "Creative Synthesis",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output demonstrates creative synthesis by finding solutions that satisfy multiple participants' non-negotiables and desires, such as proposing a specific park location on a bus line, addressing allergen labeling, and incorporating Mike's chili and Pat's drinks as contributions. It also addresses potential tensions and offers possible resolutions, showcasing a high level of creative problem-solving."
+          },
+          {
+            "name": "Actionability",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output is very specific and actionable, proposing a clear location, time, and system for food labeling and contribution. It directly addresses all non-negotiable concerns and meets all preferences and desires, making it a well-rounded and actionable proposal."
+          },
+          {
+            "name": "Tension Handling",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output clearly identifies and handles tensions through specific proposals and possible resolutions, addressing all participants' concerns and desires in a transparent manner."
+          },
+          {
+            "name": "Consensus Through Obviousness",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output proposes a clear and specific plan that addresses all participants' non-negotiable concerns and desires, achieving consensus through obviousness."
+          }
+        ],
+        "summary": "Overall score: 5/5. Strengths: Constraint Satisfaction, Creative Synthesis, Actionability, Tension Handling, Consensus Through Obviousness. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:33:31.029Z",
+      "latencyMs": 9735
+    },
+    {
+      "scenarioId": "synthesis-equipment-conflict",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "proposals": [
+          {
+            "question": "What lawn mower to purchase for the neighborhood?",
+            "proposal": "Purchase a used self-propelled lawn mower from a reputable brand like Honda or Husqvarna, with a budget of $350.",
+            "rationale": "This proposal addresses the must-have features of being self-propelled and having mulching capabilities, while also staying within Pat's budget.",
+            "addressedConcerns": [
+              "Total budget under $400",
+              "Must be self-propelled with mulching"
+            ],
+            "addressedDesires": [
+              "Quality brand that will last"
+            ]
+          }
+        ],
+        "tensions": [
+          {
+            "description": "The proposal may not meet Sam's desire for a new lawn mower, as a used one may have some wear and tear.",
+            "constraintsInvolved": [
+              "Pat's budget constraint",
+              "Sam's desire for a new lawn mower"
+            ],
+            "possibleResolutions": [
+              "If we adjust budget to $450, we could purchase a new self-propelled lawn mower from a reputable brand.",
+              "If we add more participants to split the cost, we could consider purchasing a new lawn mower."
+            ]
+          }
+        ]
+      },
+      "rawResponse": "{\n  \"proposals\": [\n      {\n         \"question\": \"What lawn mower to purchase for the neighborhood?\",\n         \"proposal\": \"Purchase a used self-propelled lawn mower from a reputable brand like Honda or Husqvarna, with a budget of $350.\",\n         \"rationale\": \"This proposal addresses the must-have features of being self-propelled and having mulching capabilities, while also staying within Pat's budget.\",\n         \"addressedConcerns\": [\"Total budget under $400\", \"Must be self-propelled with mulching\"],\n         \"addressedDesires\": [\"Quality brand that will last\"]\n      }\n   ],\n   \"tensions\": [\n      {\n         \"description\": \"The proposal may not meet Sam's desire for a new lawn mower, as a used one may have some wear and tear.\",\n         \"constraintsInvolved\": [\"Pat's budget constraint\", \"Sam's desire for a new lawn mower\"],\n         \"possibleResolutions\": [\n            \"If we adjust budget to $450, we could purchase a new self-propelled lawn mower from a reputable brand.\",\n            \"If we add more participants to split the cost, we could consider purchasing a new lawn mower.\"\n         ]\n      }\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4,
+        "criteria": [
+          {
+            "name": "Constraint Satisfaction",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output satisfies most high-priority constraints from all participants. It addresses Pat's budget constraint and Sam's non-negotiable requirements for self-propelled and mulching capabilities. However, it does not fully address Sam's desire for a quality brand that will last, as it proposes a used lawn mower. The output also provides honest tension and possible resolutions, acknowledging the tradeoff between budget and quality."
+          },
+          {
+            "name": "Creative Synthesis",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output proposes a solution that addresses the must-have features and stays within the budget, but it also acknowledges the tension between the desire for a new lawn mower and the budget constraint. The possible resolutions suggest adjusting the budget or adding more participants, which shows a good synthesis of the concerns and desires. However, it does not fully explore alternative solutions that might satisfy the quality desire without compromising on the budget or the self-propelled feature."
+          },
+          {
+            "name": "Actionability",
+            "pass": true,
+            "score": 4,
+            "explanation": "The proposals are actionable, but could be more specific. The proposal itself is clear and addresses the must-have features, but the rationale could be more detailed. The tensions section provides possible resolutions, but some of them are still somewhat vague (e.g., 'adjust budget to $450' could be more specific)."
+          },
+          {
+            "name": "Tension Handling",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output clearly identifies the tension between Sam's desire for a new lawn mower and Pat's budget constraint. It proposes options with explicit tradeoffs, such as adjusting the budget or adding more participants to split the cost. However, it does not fully acknowledge that a used lawn mower may not satisfy Sam's desire for a quality brand that will last, which is a non-negotiable concern."
+          },
+          {
+            "name": "Consensus Through Obviousness",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output clearly identifies the tension between Pat's budget constraint and Sam's desire for a new lawn mower, and proposes options with explicit tradeoffs. However, it doesn't fully acknowledge the constraint that a used mower may not satisfy Sam's quality desire, which might lead to further debate."
+          }
+        ],
+        "summary": "Overall score: 4/5. Strengths: Constraint Satisfaction, Creative Synthesis, Actionability, Tension Handling, Consensus Through Obviousness. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:34:25.641Z",
+      "latencyMs": 7628
+    },
+    {
+      "scenarioId": "synthesis-dinner-creative-resolution",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "proposals": [
+          {
+            "question": "Group dinner for 4 friends",
+            "proposal": "Visit a Korean BBQ restaurant",
+            "rationale": "Korean BBQ offers a variety of cooked meats and no raw fish, fitting within the budget of $30 per person.",
+            "addressedConcerns": [
+              "No raw fish",
+              "Budget under $30 per person"
+            ],
+            "addressedDesires": [
+              "Wants sushi",
+              "Asian cuisine preferred"
+            ]
+          },
+          {
+            "question": "Group dinner for 4 friends",
+            "proposal": "Order takeout from a Chinese restaurant",
+            "rationale": "Chinese cuisine is a good fit for the group's preferences, and takeout can be a cost-effective option within the budget.",
+            "addressedConcerns": [
+              "No raw fish",
+              "Budget under $30 per person"
+            ],
+            "addressedDesires": [
+              "Asian cuisine preferred"
+            ]
+          }
+        ],
+        "tensions": [
+          {
+            "description": "Potential tension between Alex's desire for sushi and the group's budget constraint.",
+            "constraintsInvolved": [
+              "Budget under $30 per person",
+              "Wants sushi"
+            ],
+            "possibleResolutions": [
+              "If we adjust budget to $40 per person, we could visit a sushi restaurant.",
+              "If we add one more person to split the cost, we could visit a sushi restaurant."
+            ]
+          }
+        ]
+      },
+      "rawResponse": "{\n  \"proposals\":[\n      {\n         \"question\":\"Group dinner for 4 friends\",\n         \"proposal\":\"Visit a Korean BBQ restaurant\",\n         \"rationale\":\"Korean BBQ offers a variety of cooked meats and no raw fish, fitting within the budget of $30 per person.\",\n         \"addressedConcerns\":[\n            \"No raw fish\",\n            \"Budget under $30 per person\"\n         ],\n         \"addressedDesires\":[\n            \"Wants sushi\",\n            \"Asian cuisine preferred\"\n         ]\n      },\n      {\n         \"question\":\"Group dinner for 4 friends\",\n         \"proposal\":\"Order takeout from a Chinese restaurant\",\n         \"rationale\":\"Chinese cuisine is a good fit for the group's preferences, and takeout can be a cost-effective option within the budget.\",\n         \"addressedConcerns\":[\n            \"No raw fish\",\n            \"Budget under $30 per person\"\n         ],\n         \"addressedDesires\":[\n            \"Asian cuisine preferred\"\n         ]\n      }\n   ],\n   \"tensions\":[\n      {\n         \"description\":\"Potential tension between Alex's desire for sushi and the group's budget constraint.\",\n         \"constraintsInvolved\":[\n            \"Budget under $30 per person\",\n            \"Wants sushi\"\n         ],\n         \"possibleResolutions\":[\n            \"If we adjust budget to $40 per person, we could visit a sushi restaurant.\",\n            \"If we add one more person to split the cost, we could visit a sushi restaurant.\"\n         ]\n      }\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 3.4,
+        "criteria": [
+          {
+            "name": "Constraint Satisfaction",
+            "pass": true,
+            "score": 3,
+            "explanation": "The proposals address key constraints (no raw fish and budget under $30 per person) but do not fully satisfy Alex's desire for sushi, which is a high-priority concern for the group."
+          },
+          {
+            "name": "Creative Synthesis",
+            "pass": true,
+            "score": 3,
+            "explanation": "The output proposes two reasonable solutions that address the group's concerns and desires. However, it does not fully achieve creative synthesis as it does not provide a novel solution that combines the group's preferences in a unique way. The suggestions are more like compromises rather than creative solutions."
+          },
+          {
+            "name": "Actionability",
+            "pass": true,
+            "score": 4,
+            "explanation": "The proposals are actionable, but they could be more specific. For example, instead of suggesting a 'Korean BBQ restaurant', it would be more specific to suggest a particular restaurant name. Additionally, the possible resolutions for the tension between Alex's desire for sushi and the group's budget constraint are vague and could be more concrete."
+          },
+          {
+            "name": "Tension Handling",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output acknowledges and addresses the tension between Alex's desire for sushi and the group's budget constraint, providing possible resolutions. However, it does not explicitly suggest specific cooked sushi options for Jordan, which is a key aspect of the expected behavior."
+          },
+          {
+            "name": "Consensus Through Obviousness",
+            "pass": true,
+            "score": 3,
+            "explanation": "The output addresses the concerns and desires of all participants, but the tension between Alex's desire for sushi and the group's budget constraint is not fully resolved. The proposed solutions do not immediately satisfy Alex's desire for sushi, and the possible resolutions suggest adjusting the budget or adding more people, which may not be feasible or appealing to everyone."
+          }
+        ],
+        "summary": "Overall score: 3.4/5. Strengths: Actionability, Tension Handling. "
+      },
+      "timestamp": "2025-11-24T15:35:28.568Z",
+      "latencyMs": 8628
+    },
+    {
+      "scenarioId": "synthesis-trip-timing-conflict",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "proposals": [
+          {
+            "question": "What beach to visit?",
+            "proposal": "Visit Huntington Beach, which is within 1 hour drive and has a swimming area.",
+            "rationale": "Huntington Beach meets Morgan's desire to swim and Casey's preference for a nearby beach.",
+            "addressedConcerns": [
+              "Must leave after 10am",
+              "Must be back by 4pm"
+            ],
+            "addressedDesires": [
+              "Wants to swim",
+              "Wants to bring dog"
+            ]
+          },
+          {
+            "question": "What time to leave?",
+            "proposal": "Leave at 10:30am to ensure arrival at the beach by 11:30am and a full day of activities.",
+            "rationale": "This proposal allows for a full day at the beach while still meeting the non-negotiable time constraints.",
+            "addressedConcerns": [
+              "Must leave after 10am",
+              "Must be back by 4pm"
+            ],
+            "addressedDesires": [
+              "Wants to swim"
+            ]
+          }
+        ],
+        "tensions": [
+          {
+            "description": "Casey's desire to bring their dog may not be feasible due to beach rules or restrictions.",
+            "constraintsInvolved": [
+              "Beach rules",
+              "Dog-friendly beach"
+            ],
+            "possibleResolutions": [
+              "Research dog-friendly beaches in the area and adjust the proposal accordingly",
+              "Consider alternative activities that allow the dog to join, such as a nearby park or hike"
+            ]
+          }
+        ]
+      },
+      "rawResponse": "{\n  \"proposals\": [\n      {\n         \"question\": \"What beach to visit?\",\n         \"proposal\": \"Visit Huntington Beach, which is within 1 hour drive and has a swimming area.\",\n         \"rationale\": \"Huntington Beach meets Morgan's desire to swim and Casey's preference for a nearby beach.\",\n         \"addressedConcerns\": [\"Must leave after 10am\", \"Must be back by 4pm\"],\n         \"addressedDesires\": [\"Wants to swim\", \"Wants to bring dog\"]\n      },\n      {\n         \"question\": \"What time to leave?\",\n         \"proposal\": \"Leave at 10:30am to ensure arrival at the beach by 11:30am and a full day of activities.\",\n         \"rationale\": \"This proposal allows for a full day at the beach while still meeting the non-negotiable time constraints.\",\n         \"addressedConcerns\": [\"Must leave after 10am\", \"Must be back by 4pm\"],\n         \"addressedDesires\": [\"Wants to swim\"]\n      }\n   ],\n   \"tensions\": [\n      {\n         \"description\": \"Casey's desire to bring their dog may not be feasible due to beach rules or restrictions.\",\n         \"constraintsInvolved\": [\"Beach rules\", \"Dog-friendly beach\"],\n         \"possibleResolutions\": [\"Research dog-friendly beaches in the area and adjust the proposal accordingly\", \"Consider alternative activities that allow the dog to join, such as a nearby park or hike\"]\n      }\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 3.7,
+        "criteria": [
+          {
+            "name": "Constraint Satisfaction",
+            "pass": true,
+            "score": 3,
+            "explanation": "The proposals address key concerns (leave after 10am and be back by 4pm) and desires (swim and bring dog), but do not fully satisfy all constraints. Specifically, the proposals do not address the tight time window (4 hours at the beach) and the proposal for leaving at 10:30am does not maximize beach time as suggested."
+          },
+          {
+            "name": "Creative Synthesis",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output demonstrates good synthesis by addressing the concerns and desires of all participants, but it does not fully leverage the information to propose a truly creative solution. The proposals are reasonable and practical, but they do not fully explore alternative options or third options that might better meet the needs of all participants."
+          },
+          {
+            "name": "Actionability",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output provides specific and actionable proposals for the beach to visit and the time to leave. However, it does not fully address the tight timing constraint, as the proposed departure time of 10:30am may not maximize beach time as suggested in the expected behavior."
+          },
+          {
+            "name": "Tension Handling",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output acknowledges and addresses the main concerns and desires of the participants, but does not fully resolve the tension related to Casey's desire to bring their dog. The proposed resolution is vague and does not provide a clear plan of action, which prevents it from being fully handled."
+          },
+          {
+            "name": "Consensus Through Obviousness",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output proposes specific and reasonable solutions to the collaboration's constraints and desires, but does not explicitly acknowledge the tight timing as a potential point of contention. The proposed solution to leave at 10:30am may not be optimal given the 4-hour time window at the beach, which is noted as 'tight'. However, the output does suggest a feasible plan that would likely be accepted by the participants."
+          }
+        ],
+        "summary": "Overall score: 3.7/5. Strengths: Creative Synthesis, Actionability, Tension Handling, Consensus Through Obviousness. "
+      },
+      "timestamp": "2025-11-24T15:36:37.415Z",
+      "latencyMs": 8694
+    },
+    {
+      "scenarioId": "synthesis-event-three-way-conflict",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "proposals": [
+          {
+            "question": "Where should we have the team celebration dinner?",
+            "proposal": "We'll have the dinner at a restaurant that offers a separate vegan menu and a steak option, located in the downtown area.",
+            "rationale": "This way, we can accommodate Pat's non-negotiable vegan requirement, Chris's non-negotiable steak option, and Taylor's strong preference for a downtown location.",
+            "addressedConcerns": [
+              "Pat's vegan requirement",
+              "Chris's steak option",
+              "Taylor's downtown location preference"
+            ],
+            "addressedDesires": []
+          }
+        ],
+        "tensions": [
+          {
+            "description": "Conflicting requirements: vegan and steak options cannot be offered at the same restaurant.",
+            "constraintsInvolved": [
+              "Pat's vegan requirement",
+              "Chris's steak option"
+            ],
+            "possibleResolutions": [
+              "If we adjust the proposal to have two separate restaurants, one with a vegan menu and another with steak options, located in the downtown area.",
+              "If we compromise on the type of cuisine, choosing a restaurant that offers a variety of options, including vegan and steak alternatives."
+            ]
+          }
+        ]
+      },
+      "rawResponse": "{\n  \"proposals\": [\n      {\n         \"question\": \"Where should we have the team celebration dinner?\",\n         \"proposal\": \"We'll have the dinner at a restaurant that offers a separate vegan menu and a steak option, located in the downtown area.\",\n         \"rationale\": \"This way, we can accommodate Pat's non-negotiable vegan requirement, Chris's non-negotiable steak option, and Taylor's strong preference for a downtown location.\",\n         \"addressedConcerns\": [\"Pat's vegan requirement\", \"Chris's steak option\", \"Taylor's downtown location preference\"],\n         \"addressedDesires\": []\n      }\n   ],\n   \"tensions\": [\n      {\n         \"description\": \"Conflicting requirements: vegan and steak options cannot be offered at the same restaurant.\",\n         \"constraintsInvolved\": [\"Pat's vegan requirement\", \"Chris's steak option\"],\n         \"possibleResolutions\": [\n            \"If we adjust the proposal to have two separate restaurants, one with a vegan menu and another with steak options, located in the downtown area.\",\n            \"If we compromise on the type of cuisine, choosing a restaurant that offers a variety of options, including vegan and steak alternatives.\"\n         ]\n      }\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 3.8,
+        "criteria": [
+          {
+            "name": "Constraint Satisfaction",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output acknowledges the fundamental conflict between Pat's vegan requirement and Chris's steak option, and suggests possible resolutions that address the tension. However, it does not explicitly state that the specific combination of requirements cannot be satisfied at one restaurant, which would have earned a score of 5."
+          },
+          {
+            "name": "Creative Synthesis",
+            "pass": true,
+            "score": 3,
+            "explanation": "The output proposes a compromise solution that addresses the concerns of all participants, but it does not fully satisfy the non-negotiable requirements of Pat and Chris. The proposal suggests a restaurant that offers a separate vegan menu and a steak option, but this does not fully address the fundamental conflict between vegan and steak options. The output also fails to acknowledge that this specific combination cannot be satisfied at one restaurant."
+          },
+          {
+            "name": "Actionability",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output provides actionable proposals, but they could be more specific. The proposals suggest alternatives, but the language is somewhat general and could be more concrete."
+          },
+          {
+            "name": "Tension Handling",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output clearly identifies the fundamental conflict between vegan and steak options, acknowledges the non-negotiable nature of these requirements, and proposes alternative solutions. However, it does not explicitly state that the specific combination of requirements cannot be satisfied at one restaurant, which is a minor oversight."
+          },
+          {
+            "name": "Consensus Through Obviousness",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output acknowledges the fundamental conflict between vegan and steak options, and proposes two alternative solutions that could work. However, it does not explicitly state that the specific combination of a single restaurant with both options is not possible, which would have earned a perfect score."
+          }
+        ],
+        "summary": "Overall score: 3.8/5. Strengths: Constraint Satisfaction, Actionability, Tension Handling, Consensus Through Obviousness. "
+      },
+      "timestamp": "2025-11-24T15:37:35.068Z",
+      "latencyMs": 8724
+    },
+    {
+      "scenarioId": "contextualization-proposal-fit-happy",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "summary": "The proposal meets your non-negotiable location requirement and aligns with your preferred afternoon timing.",
+        "confidence": "high",
+        "highlights": [
+          "The location is accessible by bus, meeting your non-negotiable requirement.",
+          "The proposal also meets your preferred afternoon timing."
+        ],
+        "concerns": []
+      },
+      "rawResponse": "{\n  \"summary\": \"The proposal meets your non-negotiable location requirement and aligns with your preferred afternoon timing.\",\n   \"confidence\": \"high\",\n   \"highlights\": [\"The location is accessible by bus, meeting your non-negotiable requirement.\", \"The proposal also meets your preferred afternoon timing.\"],\n   \"concerns\": []\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 5,
+        "criteria": [
+          {
+            "name": "Accuracy",
+            "pass": true,
+            "score": 5,
+            "explanation": "The summary is completely accurate about how the proposal affects Sarah, explicitly mentioning the #5 bus line addresses her transit concern, highlighting that 2pm Saturday works with her schedule, and presenting a positive and personalized tone."
+          },
+          {
+            "name": "Personalization",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output is highly personalized as it explicitly mentions the #5 bus line to address Sarah's transit concern and highlights that 2pm Saturday works with her schedule, while also providing a positive and personalized summary."
+          },
+          {
+            "name": "Confidence Calibration",
+            "pass": true,
+            "score": 5,
+            "explanation": "The confidence level is perfectly calibrated as 'high' given that both constraints are satisfied, and the output explicitly mentions the #5 bus line addressing her transit concern, highlights that 2pm Saturday works with her schedule, and provides a positive and personalized summary with no concerns listed."
+          },
+          {
+            "name": "Highlights and Concerns",
+            "pass": true,
+            "score": 5,
+            "explanation": "All relevant highlights and concerns are surfaced appropriately, including the #5 bus line addressing her transit concern and the 2pm Saturday start time fitting her schedule."
+          }
+        ],
+        "summary": "Overall score: 5/5. Strengths: Accuracy, Personalization, Confidence Calibration, Highlights and Concerns. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:38:08.705Z",
+      "latencyMs": 5354
+    },
+    {
+      "scenarioId": "contextualization-proposal-partial-fit",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "summary": "The proposal suggests a Sunday morning potluck at Central Park, which meets your accessibility requirement but doesn't align with your preferred afternoon timing.",
+        "confidence": "low",
+        "highlights": [
+          "The location is accessible by bus, meeting one of your non-negotiable requirements."
+        ],
+        "concerns": [
+          "The timing is not in the afternoon, which is your preferred time. You might want to mention this concern to the group.",
+          "The proposal doesn't address your desire for afternoon timing, which might not work for you because of the conflicting schedule."
+        ]
+      },
+      "rawResponse": "{\n  \"summary\": \"The proposal suggests a Sunday morning potluck at Central Park, which meets your accessibility requirement but doesn't align with your preferred afternoon timing.\",\n   \"confidence\": \"low\",\n   \"highlights\": [\"The location is accessible by bus, meeting one of your non-negotiable requirements.\"],\n   \"concerns\": [\n      \"The timing is not in the afternoon, which is your preferred time. You might want to mention this concern to the group.\",\n      \"The proposal doesn't address your desire for afternoon timing, which might not work for you because of the conflicting schedule.\"\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4,
+        "criteria": [
+          {
+            "name": "Accuracy",
+            "pass": true,
+            "score": 4,
+            "explanation": "The summary is very accurate about how the proposal affects Sarah, correctly noting that the proposal meets her accessibility requirement and doesn't align with her preferred afternoon timing. However, it could be slightly more accurate in its language, as it implies that the proposal doesn't address her desire for afternoon timing, which is not entirely accurate since the proposal does address it as a desire."
+          },
+          {
+            "name": "Personalization",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output references Sarah's specific constraints (transit accessibility) and mentions her desire for afternoon timing, but does not flag the timing mismatch as a concern in a personalized way. It suggests she might want to raise the concern, which is a good start, but could be more direct and honest about the timing mismatch."
+          },
+          {
+            "name": "Confidence Calibration",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output provides a good calibration of confidence level as 'low' given the constraint satisfaction, but it could be more precise in indicating that the proposal meets one of the participant's non-negotiable requirements."
+          },
+          {
+            "name": "Highlights and Concerns",
+            "pass": true,
+            "score": 4,
+            "explanation": "Most surfaced, but the output could be more concise in highlighting the location's accessibility and more direct in suggesting Sarah raise the timing concern."
+          }
+        ],
+        "summary": "Overall score: 4/5. Strengths: Accuracy, Personalization, Confidence Calibration, Highlights and Concerns. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:38:41.625Z",
+      "latencyMs": 4494
+    },
+    {
+      "scenarioId": "question-id-potluck-multiple",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "questions": [
+          {
+            "category": "when",
+            "question": "What day and time should the neighborhood potluck be?",
+            "hasConflict": false,
+            "positions": [
+              {
+                "view": "Afternoon timing preferred",
+                "weight": 1,
+                "participantIds": [
+                  "Sarah"
+                ]
+              },
+              {
+                "view": "Weekend timing preferred",
+                "weight": 1,
+                "participantIds": [
+                  "Pat"
+                ]
+              }
+            ],
+            "consensus": null,
+            "weight": 2
+          },
+          {
+            "category": "where",
+            "question": "Where should the neighborhood potluck be held?",
+            "hasConflict": false,
+            "positions": [
+              {
+                "view": "Location must be accessible by bus",
+                "weight": 1,
+                "participantIds": [
+                  "Sarah"
+                ]
+              }
+            ],
+            "consensus": null,
+            "weight": 1
+          },
+          {
+            "category": "what",
+            "question": "What type of food should be served?",
+            "hasConflict": false,
+            "positions": [
+              {
+                "view": "Simple contribution like drinks",
+                "weight": 1,
+                "participantIds": [
+                  "Pat"
+                ]
+              },
+              {
+                "view": "Wants to bring homemade chili",
+                "weight": 1,
+                "participantIds": [
+                  "Mike"
+                ]
+              }
+            ],
+            "consensus": null,
+            "weight": 2
+          },
+          {
+            "category": "budget",
+            "question": "What is the maximum per-person contribution?",
+            "hasConflict": false,
+            "positions": [
+              {
+                "view": "Per-person contribution under $20",
+                "weight": 1,
+                "participantIds": [
+                  "Mike"
+                ]
+              }
+            ],
+            "consensus": null,
+            "weight": 1
+          }
+        ],
+        "couplings": [
+          {
+            "categories": [
+              "what",
+              "budget"
+            ],
+            "nature": "Activity choice determines minimum budget"
+          }
+        ],
+        "consensusItems": [
+          "Location must be accessible by bus (weight: 1)",
+          "All food must be clearly labeled for nut allergies (weight: 1)"
+        ]
+      },
+      "rawResponse": "{\n  \"questions\": [\n      {\n         \"category\": \"when\",\n         \"question\": \"What day and time should the neighborhood potluck be?\",\n         \"hasConflict\": false,\n         \"positions\": [\n            {\n               \"view\": \"Afternoon timing preferred\",\n               \"weight\": 1,\n               \"participantIds\": [\"Sarah\"]\n            },\n            {\n               \"view\": \"Weekend timing preferred\",\n               \"weight\": 1,\n               \"participantIds\": [\"Pat\"]\n            }\n         ],\n         \"consensus\": null,\n         \"weight\": 2\n      },\n      {\n         \"category\": \"where\",\n         \"question\": \"Where should the neighborhood potluck be held?\",\n         \"hasConflict\": false,\n         \"positions\": [\n            {\n               \"view\": \"Location must be accessible by bus\",\n               \"weight\": 1,\n               \"participantIds\": [\"Sarah\"]\n            }\n         ],\n         \"consensus\": null,\n         \"weight\": 1\n      },\n      {\n         \"category\": \"what\",\n         \"question\": \"What type of food should be served?\",\n         \"hasConflict\": false,\n         \"positions\": [\n            {\n               \"view\": \"Simple contribution like drinks\",\n               \"weight\": 1,\n               \"participantIds\": [\"Pat\"]\n            },\n            {\n               \"view\": \"Wants to bring homemade chili\",\n               \"weight\": 1,\n               \"participantIds\": [\"Mike\"]\n            }\n         ],\n         \"consensus\": null,\n         \"weight\": 2\n      },\n      {\n         \"category\": \"budget\",\n         \"question\": \"What is the maximum per-person contribution?\",\n         \"hasConflict\": false,\n         \"positions\": [\n            {\n               \"view\": \"Per-person contribution under $20\",\n               \"weight\": 1,\n               \"participantIds\": [\"Mike\"]\n            }\n         ],\n         \"consensus\": null,\n         \"weight\": 1\n      }\n   ],\n   \"couplings\": [\n      {\n         \"categories\": [\"what\", \"budget\"],\n         \"nature\": \"Activity choice determines minimum budget\"\n      }\n   ],\n   \"consensusItems\": [\n      \"Location must be accessible by bus (weight: 1)\",\n      \"All food must be clearly labeled for nut allergies (weight: 1)\"\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.9,
+        "criteria": [
+          {
+            "name": "Question Coverage",
+            "pass": true,
+            "score": 5,
+            "explanation": "All relevant decision questions are identified, including 'when', 'where', 'what', and 'budget', with no major gaps or conflicts."
+          },
+          {
+            "name": "Conflict Detection",
+            "pass": true,
+            "score": 5,
+            "explanation": "All conflicts are correctly identified: 'where' (bus-accessible park), 'budget' ($20 per person preference), and 'what' (coupled with budget, live music costs money). The output also lists consensus items correctly, including allergen labeling and specific contributions."
+          },
+          {
+            "name": "Coupling Identification",
+            "pass": true,
+            "score": 5,
+            "explanation": "All couplings found, including the correct identification of 'budget' and 'what' as coupled categories, where live music costs money."
+          },
+          {
+            "name": "Consensus Recognition",
+            "pass": true,
+            "score": 4,
+            "explanation": "Most consensus items are correctly identified, but 'Wants to bring homemade chili' is not listed as a consensus item, and 'Per-person contribution under $20' is not explicitly stated as a consensus item despite being a concern with severity 'preference'. However, the coupling between 'what' and 'budget' is correctly noted."
+          },
+          {
+            "name": "Category Assignment",
+            "pass": true,
+            "score": 5,
+            "explanation": "All questions are correctly assigned to their respective categories (when, where, what, budget) without any major errors."
+          }
+        ],
+        "summary": "Overall score: 4.9/5. Strengths: Question Coverage, Conflict Detection, Coupling Identification, Consensus Recognition, Category Assignment. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:40:12.818Z",
+      "latencyMs": 9895
+    },
+    {
+      "scenarioId": "question-id-two-person-conflict",
+      "model": "llama-3.1-8b-instant",
+      "output": {
+        "questions": [
+          {
+            "category": "when",
+            "question": "When should we go on the weekend getaway?",
+            "hasConflict": false,
+            "consensus": "Next month",
+            "weight": 2
+          },
+          {
+            "category": "where",
+            "question": "Where should we go for the weekend getaway?",
+            "hasConflict": true,
+            "positions": [
+              {
+                "view": "Beach destination",
+                "weight": 1,
+                "participantIds": [
+                  "Alex"
+                ]
+              },
+              {
+                "view": "Mountain destination",
+                "weight": 1,
+                "participantIds": [
+                  "Jordan"
+                ]
+              }
+            ]
+          },
+          {
+            "category": "what",
+            "question": "What type of destination should we choose?",
+            "hasConflict": true,
+            "positions": [
+              {
+                "view": "Beach destination",
+                "weight": 1,
+                "participantIds": [
+                  "Alex"
+                ]
+              },
+              {
+                "view": "Mountain destination",
+                "weight": 1,
+                "participantIds": [
+                  "Jordan"
+                ]
+              }
+            ]
+          },
+          {
+            "category": "budget",
+            "question": "What is our budget for the weekend getaway?",
+            "hasConflict": false,
+            "consensus": "Under $500 total",
+            "weight": 2
+          }
+        ],
+        "couplings": [
+          {
+            "categories": [
+              "what",
+              "budget"
+            ],
+            "nature": "Destination choice affects budget"
+          }
+        ],
+        "consensusItems": [
+          "Next month (weight: 2)",
+          "Under $500 total (weight: 2)"
+        ]
+      },
+      "rawResponse": "{\n  \"questions\": [\n      {\n         \"category\": \"when\",\n         \"question\": \"When should we go on the weekend getaway?\",\n         \"hasConflict\": false,\n         \"consensus\": \"Next month\",\n         \"weight\": 2\n      },\n      {\n         \"category\": \"where\",\n         \"question\": \"Where should we go for the weekend getaway?\",\n         \"hasConflict\": true,\n         \"positions\": [\n            {\n               \"view\": \"Beach destination\",\n               \"weight\": 1,\n               \"participantIds\": [\"Alex\"]\n            },\n            {\n               \"view\": \"Mountain destination\",\n               \"weight\": 1,\n               \"participantIds\": [\"Jordan\"]\n            }\n         ]\n      },\n      {\n         \"category\": \"what\",\n         \"question\": \"What type of destination should we choose?\",\n         \"hasConflict\": true,\n         \"positions\": [\n            {\n               \"view\": \"Beach destination\",\n               \"weight\": 1,\n               \"participantIds\": [\"Alex\"]\n            },\n            {\n               \"view\": \"Mountain destination\",\n               \"weight\": 1,\n               \"participantIds\": [\"Jordan\"]\n            }\n         ]\n      },\n      {\n         \"category\": \"budget\",\n         \"question\": \"What is our budget for the weekend getaway?\",\n         \"hasConflict\": false,\n         \"consensus\": \"Under $500 total\",\n         \"weight\": 2\n      }\n   ],\n   \"couplings\": [\n      {\n         \"categories\": [\"what\", \"budget\"],\n         \"nature\": \"Destination choice affects budget\"\n      }\n   ],\n   \"consensusItems\": [\n      \"Next month (weight: 2)\",\n      \"Under $500 total (weight: 2)\"\n   ]\n}",
+      "parseSuccess": true,
+      "judgment": {
+        "pass": true,
+        "score": 4.6,
+        "criteria": [
+          {
+            "name": "Question Coverage",
+            "pass": true,
+            "score": 5,
+            "explanation": "All relevant decision questions (when, where, what, budget) are identified, and the output also captures the coupling between 'where' and 'what' questions."
+          },
+          {
+            "name": "Conflict Detection",
+            "pass": true,
+            "score": 4,
+            "explanation": "The output correctly identifies most conflicts, including the 'where' and 'what' questions with conflicting positions, and notes the coupling between destination and budget. However, it does not explicitly mention the underlying reasons for the conflicts, such as the desire for relaxation vs hiking, or the preference for warm vs cooler weather."
+          },
+          {
+            "name": "Coupling Identification",
+            "pass": true,
+            "score": 4,
+            "explanation": "Most couplings found, but missed the coupling between 'where' and 'what' (destination determines activities)."
+          },
+          {
+            "name": "Consensus Recognition",
+            "pass": true,
+            "score": 5,
+            "explanation": "The output correctly identifies all consensus items, including the 'when' and 'budget' questions, and notes the coupling between 'where' and 'what' questions. The consensus items are listed accurately, and the output does not incorrectly identify any consensus items."
+          },
+          {
+            "name": "Category Assignment",
+            "pass": true,
+            "score": 5,
+            "explanation": "All questions are correctly assigned to their respective categories (when, where, what, budget), and the output accurately identifies conflicts and consensus points."
+          }
+        ],
+        "summary": "Overall score: 4.6/5. Strengths: Question Coverage, Conflict Detection, Coupling Identification, Consensus Recognition, Category Assignment. Excellent across all criteria."
+      },
+      "timestamp": "2025-11-24T15:41:21.360Z",
+      "latencyMs": 8631
+    }
+  ]
+}

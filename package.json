@@ -1,0 +1,21 @@
+{
+  "name": "3cs",
+  "version": "1.0.0",
+  "description": "Three Cs - Connection, Consensus, Coordination",
+  "scripts": {
+    "test": "ts-node tests/run.ts",
+    "test:briefing": "ts-node tests/run.ts briefing",
+    "test:extraction": "ts-node tests/run.ts extraction",
+    "test:synthesis": "ts-node tests/run.ts synthesis",
+    "test:contextualization": "ts-node tests/run.ts contextualization"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "groq-sdk": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
