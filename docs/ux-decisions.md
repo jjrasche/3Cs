@@ -112,11 +112,21 @@ Desires:
 - `would like: cornbread`
 - `would love: outside seating`
 
+### Visual Treatment
+
+**Opacity indicates priority:**
+- Solid/opaque = high priority (non-negotiable, must have)
+- Faded/transparent = lower priority (nice-to-have)
+
+Tags split by concerns and desires, ranked within each category.
+
 ### Interaction
 
 - **Tap**: Confirm the tag is correct
 - **Long-press**: Remove (AI got it wrong)
 - Speaking more refines or corrects tags
+
+**Note:** Users cannot manually add or edit tags - only remove incorrect ones. Corrections happen through voice. This maintains the "don't guard yourself" principle.
 
 ---
 
@@ -216,15 +226,108 @@ The invitation just seeds the problem space. Everything is negotiable. Invitees 
 
 ---
 
+## Consensus Flow
+
+### Response Options
+
+Three ways to respond to a proposal:
+
+1. **Accept** - I'm good with this
+2. **Accept with reservations** - I'll go along, but have concerns
+3. **Opt out** - This doesn't work for me, continue without me
+
+**Object** (implicit fourth option) - Triggers a mini-extraction conversation to understand what's not working. This feeds back to synthesis for a new proposal.
+
+### Consent Mechanism
+
+**Silence = consent.** After the response window expires, non-responses are treated as tacit approval.
+
+Objections trigger re-extraction:
+- AI: "What's not working for you?"
+- Extracts new constraints or surfaces how existing ones should be reprioritized
+- Feeds back to synthesis
+
+### Group Visibility
+
+**Real-time aggregation** - People see responses as they come in:
+- "5 accepted, 2 with reservations, 1 opted out"
+
+**Reservations shown anonymously:**
+- "2 people have reservations about timing"
+- Reservations are concerns already known from extraction - this just surfaces which ones are active
+
+**No attribution** unless the person chose to attribute their constraints.
+
+### Threshold
+
+**Majority proceeds, minority can fork.** There's no unanimous requirement - if most people accept, the collaboration moves forward. Those who can't make it work can opt out or fork into a separate collaboration.
+
+### Non-Resolvable Situations
+
+When synthesis can't satisfy someone's constraints:
+
+1. **Graceful opt-out** - "Based on your constraints, this doesn't have a solution that works for you. Want me to keep you posted if things shift?"
+2. **Accept with noted reservations** - Go along but concerns are logged
+3. **Raise a tradeoff** - "To make this work for you, the group would need to give up X. Do you want to surface that?" (Future: explore how this works mechanically)
+
+---
+
+## Coordination / Task Assignment
+
+### Consensus → Coordination Transition
+
+**Accepting a proposal = commitment to contribute.**
+
+- Consensus is on the **mandate** (outcome + requirements)
+- Tasks are the AI's optimization of *how* you contribute
+- Declining a task ≠ reopening consensus
+- Declining all tasks = effectively opting out
+
+### Task Flow
+
+Once mandate is established:
+
+1. **AI generates tasks** from the mandate's requirements/deliverables
+2. **Preference round** - People indicate which tasks they'd like to do
+3. **AI distributes** based on preferences + extraction data (skills, availability)
+4. **Assignments sent** - Each person sees their tasks
+5. **Confirm or decline** - Declining triggers reassignment
+
+### Decline Handling
+
+- Task declined once → AI reassigns to next best fit
+- Task declined more than once → Flagged to group for resolution
+
+### Gap Resolution
+
+Unassigned tasks get surfaced to the group. Someone must volunteer or the group decides how to handle (defer, simplify, split up, etc.).
+
+---
+
+## Platform
+
+**Progressive Web App (PWA)**
+
+- Web-first, works on mobile and desktop
+- Sidesteps "mobile vs desktop first" question
+- Handles notifications (mostly - some limitations)
+- No app store friction
+
+Mobile is the primary use case (voice-first, on-the-go discovery) but desktop works fine.
+
+---
+
 ## Open Questions
 
 Still to resolve:
 
 - **Tag visualization density**: Clean accumulating tags vs flowing narrative vs spatial clustering?
-- **Exact severity/intensity scales**: Finalize the four-point scales
-- **Mobile vs desktop**: Mobile seems primary (voice-first, on-the-go discovery) but need to confirm
 - **Chat vs dashboard balance**: How much structure vs conversational flow?
 - **Calendar integration specifics**: How does this work with existing calendars?
+- **Response window timing**: How long do people have to respond to proposals? Time-based? Contextual?
+- **Deferred conditionality**: How do compromise commitments ("this restaurant now, that one next time") get tracked and honored?
+- **Tradeoff surfacing mechanics**: When someone wants to raise a tradeoff to the group, how does that flow work?
+- **PWA notification limitations**: What's the fallback for notification edge cases?
 
 ---
 
@@ -238,3 +341,5 @@ Still to resolve:
 6. **Ambient group presence** - feel the group without seeing their process
 7. **Discovery as propellant** - prompt initiation, don't just show what exists
 8. **Social but not social media** - the activity is the point
+9. **Silence = consent** - reduce friction, maintain momentum
+10. **Acceptance = commitment** - agreeing to the mandate means agreeing to contribute
