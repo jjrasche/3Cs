@@ -85,6 +85,7 @@ export type ExtractionOutput = ExtractionObject;
 // Prompt 3: Synthesis
 export interface SynthesisInput {
   collaboration: Collaboration;          // includes all participants' extractions
+  questionIdentification?: QuestionIdentificationOutput;  // structured problem analysis (optional for backward compat)
 }
 
 export interface Proposal {

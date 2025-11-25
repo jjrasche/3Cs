@@ -7,7 +7,12 @@
     "test:briefing": "ts-node tests/run.ts briefing",
     "test:extraction": "ts-node tests/run.ts extraction",
     "test:synthesis": "ts-node tests/run.ts synthesis",
-    "test:contextualization": "ts-node tests/run.ts contextualization"
+    "test:contextualization": "ts-node tests/run.ts contextualization",
+    "simulate": "ts-node tests/simulation/run-simulation.ts",
+    "simulate:easy": "ts-node tests/simulation/run-simulation.ts potluck-easy",
+    "simulate:moderate": "ts-node tests/simulation/run-simulation.ts dinner-moderate",
+    "simulate:hard": "ts-node tests/simulation/run-simulation.ts restaurant-hard",
+    "simulate:impossible": "ts-node tests/simulation/run-simulation.ts vegan-carnivore-impossible"
   },
   "dependencies": {
     "dotenv": "^16.0.0",

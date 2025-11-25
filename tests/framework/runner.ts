@@ -21,7 +21,10 @@ import {
   PromptType,
   TestScenario,
   TestResult,
-  JudgmentResult
+  JudgmentResult,
+  SynthesisInput,
+  QuestionIdentificationInput,
+  QuestionIdentificationOutput
 } from '../types';
 
 // Import prompts and scenarios
@@ -80,6 +83,11 @@ export class TestRunner {
     console.log(`${scenario.description}`);
     console.log(`${'-'.repeat(80)}\n`);
 
+    // For synthesis tests, run Question Identification first
+    if (scenario.promptType === 'synthesis') {
+      await this.enrichSynthesisInput(scenario.input as any, modelConfig);
+    }
+
     const systemPrompt = PROMPTS[scenario.promptType];
     const userPrompt = buildUserPrompt(scenario.promptType, scenario.input);
 
@@ -118,6 +126,42 @@ export class TestRunner {
       timestamp: new Date(),
       latencyMs: response.latencyMs
     };
+  }
+
+  /**
+   * Enrich synthesis input by running Question Identification first
+   * This implements the documented architecture: Structure first, solve second
+   */
+  private async enrichSynthesisInput(
+    synthesisInput: SynthesisInput,
+    modelConfig: LLMConfig
+  ): Promise<void> {
+    console.log('  🔍 Running Question Identification first...\n');
+
+    // Build QI input from synthesis input
+    const qiInput: QuestionIdentificationInput = {
+      collaboration: synthesisInput.collaboration
+    };
+
+    // Run Question Identification
+    const qiSystemPrompt = PROMPTS.questionIdentification;
+    const qiUserPrompt = buildUserPrompt('questionIdentification', qiInput);
+    const qiResponse = await this.llmClient.call(qiSystemPrompt, qiUserPrompt, modelConfig);
+
+    // Parse QI output
+    const { output: qiOutput, parseSuccess } = this.parseResponse<QuestionIdentificationOutput>(qiResponse.content);
+
+    if (parseSuccess && qiOutput) {
+      // Attach QI output to synthesis input
+      synthesisInput.questionIdentification = qiOutput;
+
+      console.log(`  ✅ Question Identification complete:`);
+      console.log(`     - ${qiOutput.questions.length} questions identified`);
+      console.log(`     - ${qiOutput.couplings.length} couplings detected`);
+      console.log(`     - ${qiOutput.consensusItems.length} consensus items\n`);
+    } else {
+      console.warn('  ⚠️  Question Identification failed to parse, synthesis will proceed without it\n');
+    }
   }
 
   private parseResponse<T>(content: string): { output: T | null; parseSuccess: boolean } {

@@ -108,6 +108,28 @@ For non-committal responses ("whatever works", "I'm flexible", "I can chip in", 
 - Use functional wording: what's needed, not why
 - When in doubt, use LOWER intensity/severity
 
+## Probing for Deal-Breakers (CRITICAL)
+**Before signaling "complete", you MUST probe for non-negotiables:**
+
+1. **Ask directly about deal-breakers early**: "Is there anything that would be a deal-breaker for you?"
+2. **Confirm severity for constraints**: When someone mentions a constraint, ask "Is that flexible, or is that a must-have?"
+3. **Probe common deal-breaker domains**:
+   - Dietary restrictions (allergies, vegetarian, religious)
+   - Time constraints (must leave by X, can't do weekdays)
+   - Accessibility needs (mobility, transportation)
+   - Budget limits (max they can spend)
+
+4. **Don't assume flexibility**: If they mention something that COULD be a deal-breaker (dietary, timing, accessibility), explicitly confirm its importance.
+
+**Example probes:**
+- "You mentioned vegetarian - is that a strong preference or a strict requirement?"
+- "Any hard constraints on timing or budget I should know about?"
+- "Is there anything that would make this not work for you?"
+
+**Only signal "complete" when:**
+- Deal-breaker domains have been explored OR user has said "that's everything"
+- Severity of key constraints has been confirmed, not assumed
+
 ## Signals
 Indicate your next action with a signal:
 - "complete": You have enough information, extraction is done
@@ -137,8 +159,34 @@ Respond with ONLY valid JSON (no markdown, no explanation):
 
 export const SYNTHESIS_PROMPT = `You are helping a group reach consensus. Your job is to synthesize everyone's concerns and desires into concrete proposals.
 
+## Your Role: Solution Finding, Not Problem Structuring
+
+If you receive structured problem analysis from Question Identification:
+- Questions have already been identified and categorized
+- Conflicts have already been detected
+- Couplings have already been found
+- Your job is to PROPOSE SOLUTIONS, not re-analyze the problem
+
+Focus on finding solutions that satisfy constraints and respect couplings.
+
 ## Goal
 "Consensus through obviousness" - proposals so reasonable that people go "yeah, that works" without needing to debate.
+
+## Working with Couplings (CRITICAL)
+
+When questions are coupled (e.g., "what + budget" or "where + accessibility"), you MUST solve them together:
+
+**Wrong approach:**
+- Solve "what" → "fine dining restaurant"
+- Solve "budget" → "under $30 per person"
+- These contradict each other!
+
+**Right approach:**
+- Recognize coupling → fine dining requires $50+ per person
+- Either propose $50+ fine dining OR propose $30 casual dining
+- Don't propose solutions that violate the coupling
+
+**Coupling detection**: If the user prompt shows couplings, pay close attention. The coupling description tells you HOW the questions interact.
 
 ## Feasibility Check (REQUIRED)
 Before finalizing ANY proposal, verify:
@@ -161,9 +209,20 @@ If ANY answer is "no" or "uncertain" → it's a TENSION, not a solution.
 4. Be specific and actionable
 
 ## Creative Synthesis
-- "Hiking vs brunch" might become "scenic picnic with good food"
-- Look for solutions that address underlying needs
-- Don't just compromise - find solutions
+
+Look for **SPECIFIC third options** that satisfy both sides, not vague compromises:
+
+**Examples:**
+- "Wants sushi" + "Can't eat raw fish" → **"Sushi restaurant with extensive cooked menu (tempura rolls, teriyaki, California rolls)"** ✓
+  NOT "Asian fusion restaurant" ✗ (too vague)
+
+- "Hiking vs brunch" → **"Scenic picnic at trailhead with gourmet sandwiches"** ✓
+  NOT "outdoor meal" ✗ (too vague)
+
+- "Quality mower" + "$400 budget" → Surface tension: "Quality self-propelled mowers cost $600+. Options: increase budget to $600, or get manual push mower at $400"
+  NOT "find a good mower for $400" ✗ (impossible)
+
+**Key principle**: Be SPECIFIC. Name actual solutions, not categories
 
 ## Handling Conflicts - Honest Failure
 It's better to surface an impossible situation than propose a fake solution.
@@ -424,7 +483,7 @@ Extract concerns and desires from this message. Update tags and respond appropri
 }
 
 function buildSynthesisUserPrompt(input: SynthesisInput): string {
-  const { collaboration } = input;
+  const { collaboration, questionIdentification } = input;
 
   // Collect all tags from all participants
   const allTags: { participant: string; tag: Tag }[] = [];
@@ -465,12 +524,58 @@ function buildSynthesisUserPrompt(input: SynthesisInput): string {
 
   const participantNames = collaboration.participants.map(p => p.name).join(', ');
 
+  // Build Question Identification section if available
+  let qiSection = '';
+  if (questionIdentification) {
+    // Format questions
+    const questionsText = questionIdentification.questions.map(q => {
+      if (q.hasConflict) {
+        const positions = q.positions!.map(p =>
+          `  - "${p.view}" (${p.weight} ${p.weight === 1 ? 'person' : 'people'})`
+        ).join('\n');
+        return `- **${q.question}** [CONFLICT]\n${positions}`;
+      } else {
+        return `- **${q.question}** [CONSENSUS: ${q.consensus}]`;
+      }
+    }).join('\n\n');
+
+    // Format couplings
+    const couplingsText = questionIdentification.couplings.length > 0
+      ? questionIdentification.couplings.map(c =>
+          `- ${c.categories.join(' + ')}: ${c.nature}`
+        ).join('\n')
+      : '- None detected';
+
+    // Format consensus items
+    const consensusText = questionIdentification.consensusItems.length > 0
+      ? questionIdentification.consensusItems.map(item => `- ${item}`).join('\n')
+      : '- None';
+
+    qiSection = `
+## Problem Structure (from Question Identification)
+
+### Decision Questions
+${questionsText}
+
+### Couplings Detected
+${couplingsText}
+
+**IMPORTANT**: Coupled questions MUST be solved together. Do not propose solutions that satisfy one coupled question while violating another.
+
+### Items with Consensus (no conflict - just accommodate)
+${consensusText}
+
+---
+
+`;
+  }
+
   return `## Collaboration
 **Outcome:** ${collaboration.outcome}
 **Participants:** ${participantNames}
 
 ---
-
+${qiSection}
 ## High Priority Concerns (must address)
 ${highConcerns}
 
@@ -492,7 +597,7 @@ ${constraintsList}
 
 ---
 
-Generate proposals that address these concerns and incorporate these desires. Identify any tensions that can't be fully resolved.`;
+Generate proposals that address these concerns and incorporate these desires${questionIdentification ? ', respecting the couplings identified above' : ''}. Identify any tensions that can't be fully resolved.`;
 }
 
 function buildContextualizationUserPrompt(input: ContextualizationInput): string {
