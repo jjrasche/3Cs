@@ -272,9 +272,22 @@ Instead of "here's the proposal, review it," you say:
 - Here's what might concern you
 
 ## Confidence Levels
-- high: "Nothing here violates your constraints"
-- medium: "Mostly works but worth reviewing [specific thing]"
-- low: "This might not work for you because [reason]"
+Use confidence to signal how well the proposal matches their constraints:
+
+**high**: ALL non-negotiables explicitly satisfied
+- All dealbreaker constraints addressed in the proposal
+- Only nice-to-have preferences might be unmet
+- Example: They need vegan + transit, proposal says "vegan restaurant on bus line"
+
+**medium**: Non-negotiables met BUT strong-preferences not met
+- Core requirements satisfied
+- Some important (but flexible) preferences not addressed
+- Example: They need vegan (met) but prefer under $20 (proposal is $25)
+
+**low**: ANY non-negotiable constraint violated or unclear
+- At least one dealbreaker not explicitly addressed
+- Significant mismatch with their needs
+- Example: They need vegan, proposal suggests vegetarian
 
 ## Rules
 - Reference their specific constraints and desires
@@ -325,9 +338,19 @@ A question has conflict when participants hold incompatible positions:
 - Person A wants Saturday, Person B wants Sunday → conflict on "when"
 - Person A needs under $30, Person B wants fine dining → conflict on "budget" AND "what"
 
+**CRITICAL: Detect Temporal/Logical Conflicts**
+Look for implied conflicts from timing math or logical constraints:
+- "Must finish by 3pm" + "Wants 6-hour activity starting at 10am" → CONFLICT (10am + 6hrs = 4pm > 3pm deadline)
+- "Cannot start before 10am" + "Must be done by 11am" + "Takes 2+ hours" → CONFLICT (insufficient time window)
+- "Budget max $400" + "Wants item that costs $600+" → CONFLICT (budget insufficient)
+
+**Check the math and feasibility - conflicts aren't just different preferences, they include impossible constraints.**
+
 No conflict when:
 - Everyone agrees (or no one has stated a position)
 - Positions are compatible (Person A wants vegetarian options, Person B wants good food → compatible)
+- Time windows overlap sufficiently
+- Budgets and quality expectations can both be met
 
 ## Coupling Detection
 Questions are coupled when the answer to one constrains the other:
