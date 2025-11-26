@@ -7,7 +7,7 @@
 
 import { Persona, PersonaPromptContext, PersonaUserResponse } from './types';
 import { ConversationTurn } from '../types';
-import { LLMClient } from '../framework/llm-client';
+import { LLMClient, setLogContext } from '../framework/llm-client';
 
 // =============================================================================
 // PERSONA PLAYER PROMPT
@@ -42,6 +42,12 @@ export class PersonaPlayer {
    */
   async generateResponse(context: PersonaPromptContext): Promise<PersonaUserResponse> {
     const userPrompt = this.buildUserPrompt(context);
+
+    // Set logging context
+    setLogContext({
+      phase: 'persona-response',
+      personaId: context.persona.id
+    });
 
     const response = await this.llmClient.call(
       PERSONA_PLAYER_PROMPT,
@@ -181,6 +187,12 @@ export class ResponseDecider {
     proposal: any
   ): Promise<any> {
     const userPrompt = this.buildResponsePrompt(persona, contextualization, proposal);
+
+    // Set logging context
+    setLogContext({
+      phase: 'response-decision',
+      personaId: persona.id
+    });
 
     const response = await this.llmClient.call(
       RESPONSE_DECISION_PROMPT,

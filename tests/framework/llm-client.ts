@@ -9,6 +9,8 @@
  */
 
 import Groq from 'groq-sdk';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface LLMConfig {
   provider: 'groq' | 'openai' | 'anthropic';
@@ -21,6 +23,201 @@ export interface LLMConfig {
 export interface LLMResponse {
   content: string;
   latencyMs: number;
+}
+
+// =============================================================================
+// LLM CALL LOGGING - Captures all inputs, outputs, and metadata for analysis
+// =============================================================================
+
+export interface LLMCallLog {
+  // Identifiers
+  id: string;
+  sessionId: string;
+  timestamp: string;
+
+  // Input
+  systemPrompt: string;
+  userPrompt: string;
+  config: LLMConfig;
+
+  // Output
+  response: string;
+  parsedResponse?: any;  // If JSON mode, the parsed object
+  parseError?: string;   // If JSON parsing failed
+
+  // Metadata
+  latencyMs: number;
+  promptTokensEstimate: number;  // Estimated from char count
+  responseTokensEstimate: number;
+
+  // Retry/Error tracking
+  attempt: number;
+  retryReason?: string;
+  error?: string;
+
+  // Context (optional - set by caller)
+  context?: {
+    phase?: string;      // e.g., 'extraction', 'synthesis', 'response-decision'
+    scenarioId?: string;
+    personaId?: string;
+    round?: number;
+  };
+}
+
+// Global call log store
+const callLogs: LLMCallLog[] = [];
+let currentSessionId: string = `session-${Date.now()}`;
+let callCounter = 0;
+
+// Current context for logging (set by callers)
+let currentLogContext: LLMCallLog['context'] = {};
+
+/**
+ * Set the current logging context (call before LLM calls)
+ */
+export function setLogContext(context: LLMCallLog['context']): void {
+  currentLogContext = context;
+}
+
+/**
+ * Clear the current logging context
+ */
+export function clearLogContext(): void {
+  currentLogContext = {};
+}
+
+/**
+ * Start a new logging session
+ */
+export function startNewSession(sessionName?: string): string {
+  currentSessionId = sessionName || `session-${Date.now()}`;
+  return currentSessionId;
+}
+
+/**
+ * Get all call logs for the current session
+ */
+export function getCallLogs(): LLMCallLog[] {
+  return [...callLogs];
+}
+
+/**
+ * Get call logs filtered by criteria
+ */
+export function getCallLogsByPhase(phase: string): LLMCallLog[] {
+  return callLogs.filter(log => log.context?.phase === phase);
+}
+
+/**
+ * Save call logs to file (JSONL format for easy streaming)
+ */
+export function saveCallLogs(outputDir?: string): string {
+  const dir = outputDir || path.join(__dirname, '..', 'output', 'llm-logs');
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const filename = path.join(dir, `llm-calls-${timestamp}.jsonl`);
+
+  // Write as JSONL (one JSON object per line)
+  const content = callLogs.map(log => JSON.stringify(log)).join('\n');
+  fs.writeFileSync(filename, content);
+
+  console.log(`\n📝 LLM call logs saved: ${filename} (${callLogs.length} calls)`);
+  return filename;
+}
+
+/**
+ * Get summary statistics for call logs
+ */
+export function getCallLogStats(): {
+  totalCalls: number;
+  byModel: Record<string, number>;
+  byPhase: Record<string, number>;
+  totalLatencyMs: number;
+  avgLatencyMs: number;
+  errorCount: number;
+  retryCount: number;
+} {
+  const stats = {
+    totalCalls: callLogs.length,
+    byModel: {} as Record<string, number>,
+    byPhase: {} as Record<string, number>,
+    totalLatencyMs: 0,
+    avgLatencyMs: 0,
+    errorCount: 0,
+    retryCount: 0
+  };
+
+  for (const log of callLogs) {
+    // By model
+    const model = log.config.model;
+    stats.byModel[model] = (stats.byModel[model] || 0) + 1;
+
+    // By phase
+    const phase = log.context?.phase || 'unknown';
+    stats.byPhase[phase] = (stats.byPhase[phase] || 0) + 1;
+
+    // Latency
+    stats.totalLatencyMs += log.latencyMs;
+
+    // Errors
+    if (log.error) stats.errorCount++;
+    if (log.attempt > 1) stats.retryCount++;
+  }
+
+  stats.avgLatencyMs = stats.totalCalls > 0
+    ? Math.round(stats.totalLatencyMs / stats.totalCalls)
+    : 0;
+
+  return stats;
+}
+
+/**
+ * Log an LLM call (internal use)
+ */
+function logCall(
+  systemPrompt: string,
+  userPrompt: string,
+  config: LLMConfig,
+  response: string,
+  latencyMs: number,
+  attempt: number = 1,
+  retryReason?: string,
+  error?: string
+): LLMCallLog {
+  callCounter++;
+
+  const log: LLMCallLog = {
+    id: `call-${callCounter}`,
+    sessionId: currentSessionId,
+    timestamp: new Date().toISOString(),
+    systemPrompt,
+    userPrompt,
+    config,
+    response,
+    latencyMs,
+    promptTokensEstimate: Math.ceil((systemPrompt.length + userPrompt.length) / 4),
+    responseTokensEstimate: Math.ceil(response.length / 4),
+    attempt,
+    retryReason,
+    error,
+    context: { ...currentLogContext }
+  };
+
+  // Try to parse JSON response
+  if (config.jsonMode && response) {
+    try {
+      log.parsedResponse = JSON.parse(response);
+    } catch (e) {
+      log.parseError = (e as Error).message;
+    }
+  }
+
+  callLogs.push(log);
+  return log;
 }
 
 // Quota tracking for rate limiting
@@ -364,29 +561,43 @@ export class LLMClient {
 
     const startTime = Date.now();
     let content: string;
+    let error: string | undefined;
 
-    switch (config.provider) {
-      case 'groq':
-        content = await this.callGroqWithRetry(systemPrompt, userPrompt, config);
-        break;
-      case 'openai':
-        content = await this.callOpenAI(systemPrompt, userPrompt, config);
-        break;
-      case 'anthropic':
-        content = await this.callAnthropic(systemPrompt, userPrompt, config);
-        break;
-      default:
-        throw new Error(`Unknown provider: ${config.provider}`);
+    try {
+      switch (config.provider) {
+        case 'groq':
+          content = await this.callGroqWithRetry(systemPrompt, userPrompt, config);
+          break;
+        case 'openai':
+          content = await this.callOpenAI(systemPrompt, userPrompt, config);
+          break;
+        case 'anthropic':
+          content = await this.callAnthropic(systemPrompt, userPrompt, config);
+          break;
+        default:
+          throw new Error(`Unknown provider: ${config.provider}`);
+      }
+    } catch (e) {
+      error = (e as Error).message;
+      content = '';
+      // Log failed call
+      logCall(systemPrompt, userPrompt, config, '', Date.now() - startTime, 1, undefined, error);
+      throw e;
     }
+
+    const latencyMs = Date.now() - startTime;
+
+    // Log successful call
+    logCall(systemPrompt, userPrompt, config, content, latencyMs);
 
     return {
       content,
-      latencyMs: Date.now() - startTime
+      latencyMs
     };
   }
 
   /**
-   * Call Groq with automatic retry on rate limit
+   * Call Groq with automatic retry on rate limit and JSON validation errors
    * Uses jitter on retries to prevent thundering herd when parallel requests all hit limits
    */
   private async callGroqWithRetry(
@@ -417,7 +628,60 @@ export class LLMClient {
         }
       }
 
+      // Check if it's a JSON validation error (LLM generated invalid JSON)
+      // This happens when the LLM uses improper quote escaping
+      if (error.status === 400 && error.error?.error?.code === 'json_validate_failed') {
+        console.log(`\n⚠️  JSON validation failed (attempt ${attempt}) - LLM generated malformed JSON`);
+
+        // Retry up to 3 times - often the LLM will produce valid JSON on retry
+        if (attempt < 3) {
+          console.log(`🔄 Retrying request (attempt ${attempt + 1})...`);
+          // Small delay to avoid immediate retry
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return this.callGroqWithRetry(systemPrompt, userPrompt, config, attempt + 1);
+        }
+
+        // If still failing, try to salvage the failed generation
+        const failedJson = error.error?.error?.failed_generation;
+        if (failedJson) {
+          console.log(`⚠️  Attempting to salvage malformed JSON...`);
+          const sanitized = this.sanitizeJsonOutput(failedJson);
+          if (sanitized) {
+            console.log(`✅ Successfully salvaged JSON output`);
+            return sanitized;
+          }
+        }
+      }
+
       throw error;
+    }
+  }
+
+  /**
+   * Attempt to fix common JSON formatting issues from LLM output
+   */
+  private sanitizeJsonOutput(malformedJson: string): string | null {
+    try {
+      // First, try parsing as-is (maybe it's actually valid)
+      JSON.parse(malformedJson);
+      return malformedJson;
+    } catch {
+      // Try common fixes
+      let fixed = malformedJson;
+
+      // Fix double-double-quotes: ""text"" -> "text"
+      fixed = fixed.replace(/""([^"]+)""/g, '"$1"');
+
+      // Fix unescaped quotes inside strings (risky but worth trying)
+      // This is a simplified fix - real JSON parsers are more complex
+      fixed = fixed.replace(/"([^"]*)"([^,:}\]]*)"([^"]*)"/g, '"$1\\"$2\\"$3"');
+
+      try {
+        JSON.parse(fixed);
+        return fixed;
+      } catch {
+        return null;
+      }
     }
   }
 

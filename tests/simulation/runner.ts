@@ -26,7 +26,7 @@ import {
   ConstraintAnalysisItem
 } from './types';
 import { PersonaPlayer, ResponseDecider } from './persona-player';
-import { LLMClient } from '../framework/llm-client';
+import { LLMClient, setLogContext, clearLogContext } from '../framework/llm-client';
 import { buildUserPrompt, PROMPTS } from '../prompts/index';
 import {
   Collaboration,
@@ -279,6 +279,14 @@ export class SimulationRunner {
       };
 
       const extractionPrompt = buildUserPrompt('extraction', extractionInput);
+
+      // Set logging context for extraction call
+      setLogContext({
+        phase: 'extraction',
+        scenarioId: state.scenario.id,
+        personaId: personaState.persona.id
+      });
+
       const extractionResponse = await this.llmClient.call(
         PROMPTS.extraction,
         extractionPrompt,
@@ -340,6 +348,14 @@ export class SimulationRunner {
     };
 
     const prompt = buildUserPrompt('questionIdentification', input);
+
+    // Set logging context
+    setLogContext({
+      phase: 'question-identification',
+      scenarioId: state.scenario.id,
+      round: state.round
+    });
+
     const response = await this.llmClient.call(
       PROMPTS.questionIdentification,
       prompt,
@@ -369,6 +385,14 @@ export class SimulationRunner {
     };
 
     const prompt = buildUserPrompt('synthesis', input);
+
+    // Set logging context
+    setLogContext({
+      phase: 'synthesis',
+      scenarioId: state.scenario.id,
+      round: state.round
+    });
+
     const response = await this.llmClient.call(
       PROMPTS.synthesis,
       prompt,
@@ -415,6 +439,15 @@ export class SimulationRunner {
       };
 
       const prompt = buildUserPrompt('contextualization', input);
+
+      // Set logging context
+      setLogContext({
+        phase: 'contextualization',
+        scenarioId: state.scenario.id,
+        personaId: personaState.persona.id,
+        round: state.round
+      });
+
       const response = await this.llmClient.call(
         PROMPTS.contextualization,
         prompt,

@@ -14,7 +14,7 @@ import * as path from 'path';
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 import { SimulationRunner } from './runner';
-import { LLMClient } from '../framework/llm-client';
+import { LLMClient, startNewSession, saveCallLogs, getCallLogStats } from '../framework/llm-client';
 import { SimulationConfig, SimulationResultSerialized } from './types';
 import {
   ALL_SCENARIOS,
@@ -67,6 +67,10 @@ async function main() {
   const args = process.argv.slice(2);
   const scenarioId = args[0];
 
+  // Start a new logging session
+  const sessionId = startNewSession(`simulation-${Date.now()}`);
+  console.log(`📝 LLM Call Logging Session: ${sessionId}\n`);
+
   // Initialize LLM client
   const llmClient = new LLMClient();
 
@@ -112,6 +116,21 @@ async function main() {
 
   // Print overall summary
   printOverallSummary(results);
+
+  // Save LLM call logs
+  saveCallLogs();
+
+  // Print call log stats
+  const stats = getCallLogStats();
+  console.log(`\n📊 LLM Call Statistics:`);
+  console.log(`   Total Calls: ${stats.totalCalls}`);
+  console.log(`   Avg Latency: ${stats.avgLatencyMs}ms`);
+  console.log(`   Errors: ${stats.errorCount}`);
+  console.log(`   Retries: ${stats.retryCount}`);
+  console.log(`\n   By Phase:`);
+  for (const [phase, count] of Object.entries(stats.byPhase)) {
+    console.log(`     - ${phase}: ${count} calls`);
+  }
 }
 
 // =============================================================================
