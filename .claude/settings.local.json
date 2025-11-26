@@ -16,7 +16,15 @@
       "Bash(npm run test:synthesis:*)",
       "Bash(npx ts-node:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(git push)",
+      "Bash(npm run test:iso:context:*)",
+      "Bash(npm run test:question-id:*)",
+      "Bash(npm run test:iso:*)",
+      "Bash(npm run test:isolated:*)",
+      "Bash(npm run test:iso:extraction:*)"
     ],
     "deny": [],
     "ask": []
