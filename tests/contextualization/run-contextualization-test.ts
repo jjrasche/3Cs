@@ -3,6 +3,8 @@
  *
  * Tests the Contextualization prompt's ability to personalize proposals
  * for individual participants based on their constraints and desires.
+ *
+ * Uses LLM-as-judge for semantic evaluation instead of keyword heuristics.
  */
 
 import * as dotenv from 'dotenv';
@@ -12,6 +14,7 @@ import * as path from 'path';
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 import { LLMClient, setLogContext, startNewSession } from '../framework/llm-client';
+import { LLMJudge, RUBRICS } from '../framework/llm-judge';
 import { buildUserPrompt, PROMPTS } from '../prompts/index';
 import { ContextualizationInput, Participant, Proposal } from '../types';
 
@@ -28,12 +31,8 @@ interface ContextualizationTestCase {
   participant: Participant;
   proposal: Proposal;
 
-  // Expected output
-  expected: {
-    confidence: 'high' | 'medium' | 'low';
-    highlightsKeywords?: string[];  // Keywords that should appear in highlights
-    concernsKeywords?: string[];    // Keywords that should appear in concerns
-  };
+  // Expected behavior (for judge context)
+  expectedBehavior: string;
 }
 
 const TEST_CASES: ContextualizationTestCase[] = [
@@ -63,11 +62,9 @@ const TEST_CASES: ContextualizationTestCase[] = [
       addressedConcerns: ['Vegetarian options required', 'Budget under $20 per person'],
       addressedDesires: []
     },
-    expected: {
-      confidence: 'high',
-      highlightsKeywords: ['vegetarian', 'budget'],
-      concernsKeywords: [] // No concerns expected
-    }
+    expectedBehavior: `Since the proposal is a fully vegetarian restaurant within the budget, confidence should be HIGH.
+Highlights should mention vegetarian menu and affordable pricing.
+Concerns should be empty or minimal since all constraints are satisfied.`
   },
 
   // =============================================================================
@@ -95,11 +92,9 @@ const TEST_CASES: ContextualizationTestCase[] = [
       addressedConcerns: [],
       addressedDesires: []
     },
-    expected: {
-      confidence: 'low',
-      highlightsKeywords: [],
-      concernsKeywords: ['vegan', 'vegetarian'] // Should note the mismatch
-    }
+    expectedBehavior: `Since the proposal offers vegetarian (not vegan) options, and the participant requires vegan, confidence should be LOW.
+Concerns should clearly identify that vegetarian ≠ vegan and this violates the requirement.
+Highlights should be empty or minimal since the key constraint is violated.`
   },
 
   // =============================================================================
@@ -129,11 +124,10 @@ const TEST_CASES: ContextualizationTestCase[] = [
       addressedConcerns: ['Transit accessible location'],
       addressedDesires: []
     },
-    expected: {
-      confidence: 'medium',
-      highlightsKeywords: ['transit', 'accessible'],
-      concernsKeywords: ['budget', '$25'] // Over budget
-    }
+    expectedBehavior: `The non-negotiable (transit accessible) is satisfied, so confidence should be MEDIUM or HIGH.
+However, the budget preference ($15) is not met ($25), so MEDIUM is more appropriate.
+Highlights should mention transit accessibility.
+Concerns should note the budget is higher than preferred and no outdoor seating.`
   },
 
   // =============================================================================
@@ -161,11 +155,10 @@ const TEST_CASES: ContextualizationTestCase[] = [
       addressedConcerns: ['Nut-free food or clear allergen labeling'],
       addressedDesires: []
     },
-    expected: {
-      confidence: 'high',
-      highlightsKeywords: ['allergen', 'label'],
-      concernsKeywords: []
-    }
+    expectedBehavior: `The proposal explicitly addresses allergen labeling, so confidence should be HIGH.
+Highlights should emphasize the allergen labeling and safety for this person's nut allergy.
+Concerns should be empty since the key constraint is satisfied.
+The contextualization should feel personalized to Jordan's specific safety concern.`
   }
 ];
 
@@ -176,13 +169,15 @@ const TEST_CASES: ContextualizationTestCase[] = [
 interface TestResult {
   testCase: ContextualizationTestCase;
   actualOutput: any;
+  judgeEvaluation: any;
   pass: boolean;
   failures: string[];
 }
 
 async function runTest(
   testCase: ContextualizationTestCase,
-  llmClient: LLMClient
+  llmClient: LLMClient,
+  judge: LLMJudge
 ): Promise<TestResult> {
   const failures: string[] = [];
 
@@ -200,7 +195,7 @@ async function runTest(
 
   const prompt = buildUserPrompt('contextualization', input);
 
-  // Call LLM
+  // Call LLM to get contextualization
   const response = await llmClient.call(
     PROMPTS.contextualization,
     prompt,
@@ -214,53 +209,50 @@ async function runTest(
 
   const output = JSON.parse(response.content);
 
-  // Validate confidence level
-  if (output.confidence !== testCase.expected.confidence) {
-    failures.push(
-      `Expected confidence "${testCase.expected.confidence}" but got "${output.confidence}"`
-    );
-  }
+  // Use LLM-as-judge to evaluate
+  setLogContext({
+    phase: 'judge-contextualization',
+    personaId: testCase.participant.id
+  });
 
-  // Validate highlights contain keywords
-  if (testCase.expected.highlightsKeywords && testCase.expected.highlightsKeywords.length > 0) {
-    const highlightsText = (output.highlights || []).join(' ').toLowerCase();
-    for (const keyword of testCase.expected.highlightsKeywords) {
-      if (!highlightsText.includes(keyword.toLowerCase())) {
-        failures.push(`Expected highlights to include "${keyword}"`);
-      }
-    }
-  }
+  const judgeEvaluation = await judge.evaluate(
+    RUBRICS.contextualization,
+    { participant: testCase.participant, proposal: testCase.proposal },
+    output,
+    testCase.expectedBehavior
+  );
 
-  // Validate concerns contain keywords
-  if (testCase.expected.concernsKeywords && testCase.expected.concernsKeywords.length > 0) {
-    const concernsText = (output.concerns || []).join(' ').toLowerCase();
-    for (const keyword of testCase.expected.concernsKeywords) {
-      if (!concernsText.includes(keyword.toLowerCase())) {
-        failures.push(`Expected concerns to include "${keyword}"`);
-      }
-    }
+  // Check if evaluation passed
+  if (!judgeEvaluation.overallPass) {
+    failures.push(...judgeEvaluation.criticalFailures.map(f => `Critical failure: ${f}`));
   }
 
   return {
     testCase,
     actualOutput: output,
-    pass: failures.length === 0,
+    judgeEvaluation,
+    pass: judgeEvaluation.overallPass,
     failures
   };
 }
 
 async function main() {
   console.log('================================================================================');
-  console.log('CONTEXTUALIZATION TEST HARNESS');
+  console.log('CONTEXTUALIZATION TEST HARNESS (LLM-as-Judge)');
   console.log('================================================================================');
   console.log(`Running ${TEST_CASES.length} test(s)\n`);
 
   // Start logging session
-  startNewSession('contextualization-tests');
+  startNewSession('contextualization-tests-judge');
 
-  // Initialize LLM client
+  // Initialize LLM client for component under test
   const llmClient = new LLMClient();
   await llmClient.initializeQuota('llama-3.1-8b-instant');
+
+  // Initialize LLM judge (uses more capable model)
+  const judgeClient = new LLMClient();
+  await judgeClient.initializeQuota('llama-3.3-70b-versatile');
+  const judge = new LLMJudge(judgeClient);
 
   // Run tests
   const results: TestResult[] = [];
@@ -277,10 +269,10 @@ async function main() {
     }
     console.log(`\nProposal: ${testCase.proposal.proposal}`);
 
-    const result = await runTest(testCase, llmClient);
+    const result = await runTest(testCase, llmClient, judge);
     results.push(result);
 
-    console.log(`\n--- Contextualization ---`);
+    console.log(`\n--- Contextualization Output ---`);
     console.log(`Summary: ${result.actualOutput.summary}`);
     console.log(`Confidence: ${result.actualOutput.confidence}`);
 
@@ -298,15 +290,35 @@ async function main() {
       }
     }
 
+    console.log(`\n--- Judge Evaluation ---`);
+    console.log(`Overall: ${result.judgeEvaluation.overallPass ? '✅ PASS' : '❌ FAIL'}`);
+    console.log(`Summary: ${result.judgeEvaluation.summary}`);
+
+    console.log(`\nCriteria Results:`);
+    for (const criterion of result.judgeEvaluation.criteriaResults) {
+      const icon = criterion.pass ? '✅' : '❌';
+      console.log(`  ${icon} ${criterion.criterionId}: ${criterion.pass ? 'PASS' : 'FAIL'}`);
+      console.log(`     ${criterion.reasoning}`);
+      if (criterion.evidence) {
+        console.log(`     Evidence: "${criterion.evidence}"`);
+      }
+      if (criterion.score !== undefined) {
+        console.log(`     Score: ${criterion.score}`);
+      }
+    }
+
+    if (result.judgeEvaluation.criticalFailures.length > 0) {
+      console.log(`\n⚠️  Critical Failures:`);
+      for (const failure of result.judgeEvaluation.criticalFailures) {
+        console.log(`  - ${failure}`);
+      }
+    }
+
     console.log(`\n${'='.repeat(40)}`);
     if (result.pass) {
       console.log(`RESULT: ✅ PASS`);
     } else {
       console.log(`RESULT: ❌ FAIL`);
-      console.log(`\nFailures:`);
-      for (const failure of result.failures) {
-        console.log(`  - ${failure}`);
-      }
     }
     console.log(`${'='.repeat(40)}`);
   }

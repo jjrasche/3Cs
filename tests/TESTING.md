@@ -137,10 +137,20 @@ npm run simulate
 
 ### Validation Strategies
 
+**Modern Approach: LLM-as-Judge** (Recommended)
+- Use semantic evaluation with rubrics (see `framework/LLM-AS-JUDGE.md`)
+- Judge model evaluates component output against clear criteria
+- Provides reasoning and evidence for pass/fail decisions
+- More flexible than keyword heuristics
+- Currently used by: Contextualization tests
+
+**Legacy Approaches** (Being phased out)
 1. **Exact Match**: Use for structured data (types, flags)
-2. **Keyword Match**: Use for natural language (reasoning, summaries)
-3. **Regex Pattern**: Use for flexible text matching
+2. **Keyword Match**: Use for natural language (reasoning, summaries) - **BRITTLE, avoid**
+3. **Regex Pattern**: Use for flexible text matching - **BRITTLE, avoid**
 4. **Threshold**: Use for scores or probabilities
+
+We are transitioning all tests to LLM-as-judge for better semantic evaluation.
 
 ## Debugging Test Failures
 
@@ -151,15 +161,19 @@ npm run simulate
 
 ## Known Issues
 
-1. **Regex Pattern Too Strict**: Response decision test expects specific keyword order
+1. ~~**Regex Pattern Too Strict**: Response decision test expects specific keyword order~~ - **FIXED** by LLM-as-judge
 2. **LLM Variability**: Some tests may be flaky due to model non-determinism
 3. **Quota Limits**: Running all tests may hit rate limits on free tier
+4. **Contextualization Confidence Calibration**: Component sometimes returns medium when should be high (2/4 test failures are legitimate component issues, not test issues)
 
 ## Future Work
 
+- [x] **LLM-as-judge framework** - Replace keyword heuristics with semantic evaluation
+- [ ] Migrate all tests to LLM-as-judge (Response Decision, Question ID, Synthesis)
+- [ ] Rubric versioning system for tracking prompt/criteria changes
 - [ ] Persona Player isolated tests
 - [ ] Briefing isolated tests
 - [ ] Extraction isolated tests
 - [ ] Test coverage reporting
 - [ ] Performance benchmarks
-- [ ] A/B testing framework for prompts
+- [ ] A/B testing framework for prompts and rubrics

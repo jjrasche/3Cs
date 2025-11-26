@@ -4,6 +4,8 @@
  * Tests synthesis in isolation with KNOWN inputs (no extraction).
  * This lets us verify synthesis quality independently.
  *
+ * Uses LLM-as-judge for semantic evaluation instead of keyword heuristics.
+ *
  * Usage:
  *   npx ts-node tests/synthesis/run-synthesis-test.ts [test-id]
  */
@@ -14,7 +16,8 @@ import * as path from 'path';
 // Load .env from project root
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
-import { LLMClient } from '../framework/llm-client';
+import { LLMClient, setLogContext, startNewSession } from '../framework/llm-client';
+import { LLMJudge, RUBRICS } from '../framework/llm-judge';
 import { buildUserPrompt, PROMPTS } from '../prompts/index';
 import {
   Collaboration,
@@ -50,11 +53,8 @@ interface SynthesisTestCase {
     intensity: 'must-have' | 'would-love' | 'would-like' | 'nice-to-have';
   }[];
 
-  // Keywords that MUST appear in proposals to satisfy each constraint
-  validationKeywords: {
-    constraint: string;
-    keywords: string[];  // At least one must appear (case-insensitive)
-  }[];
+  // Expected behavior (for judge evaluation)
+  expectedBehavior: string;
 }
 
 const TEST_CASES: SynthesisTestCase[] = [
@@ -72,11 +72,11 @@ const TEST_CASES: SynthesisTestCase[] = [
       { text: 'Would love outdoor setting', owner: 'Mike', intensity: 'would-love' },
       { text: 'Keep costs under $15 per person', owner: 'Alex', intensity: 'strong-preference' as any },
     ],
-    validationKeywords: [
-      { constraint: 'Vegetarian food options required', keywords: ['vegetarian', 'veggie', 'plant-based', 'meatless'] },
-      { constraint: 'Transit accessible location', keywords: ['transit', 'bus', 'metro', 'subway', 'public transport', 'train'] },
-      { constraint: 'Nut-free food or clear allergen labeling', keywords: ['nut-free', 'nut free', 'allergen', 'allergy', 'label'] },
-    ]
+    expectedBehavior: `The proposal must explicitly address all three non-negotiable constraints:
+1. Vegetarian food options (mention vegetarian/plant-based options)
+2. Transit accessible location (mention public transit, bus lines, or similar)
+3. Nut-free food or allergen labeling (mention allergen safety or nut-free options)
+The proposal should be concrete with specific details (venue, food plan, etc.) and the rationale should explain how these constraints are satisfied.`
   },
   {
     id: 'hike-timing',
@@ -90,10 +90,10 @@ const TEST_CASES: SynthesisTestCase[] = [
     desires: [
       { text: 'Scenic views would be nice', owner: 'Alex', intensity: 'would-like' },
     ],
-    validationKeywords: [
-      { constraint: 'Must return by 5pm', keywords: ['5pm', '5:00', 'by 5', 'before 5', '4pm', '4:00', 'afternoon'] },
-      { constraint: 'Need wheelchair accessible trail', keywords: ['wheelchair', 'accessible', 'ADA', 'paved', 'flat'] },
-    ]
+    expectedBehavior: `The proposal must explicitly address both non-negotiable constraints:
+1. Must return by 5pm (should specify timing that ensures return by 5pm)
+2. Wheelchair accessible trail (should mention wheelchair accessibility, ADA compliance, or paved/flat trail)
+The proposal should include specific timing details and trail characteristics.`
   },
   {
     id: 'budget-conflict',
@@ -105,10 +105,11 @@ const TEST_CASES: SynthesisTestCase[] = [
       { text: 'Must be fine dining experience', owner: 'Quality-focused person', severity: 'non-negotiable' },
     ],
     desires: [],
-    validationKeywords: [
-      { constraint: 'Maximum budget $20 per person', keywords: ['$20', '20 dollar', 'budget', 'cost'] },
-      { constraint: 'Must be fine dining experience', keywords: ['fine dining', 'upscale', 'elegant'] },
-    ]
+    expectedBehavior: `This is a conflict scenario where both constraints cannot be satisfied simultaneously (fine dining typically costs more than $20 per person).
+The synthesis should either:
+1. Surface a tension describing the conflict between budget and quality constraints, OR
+2. Propose a creative solution that attempts to satisfy both (e.g., lunch instead of dinner, prix fixe menus, etc.)
+The proposal should acknowledge both constraints even if one cannot be fully met.`
   }
 ];
 
@@ -118,14 +119,21 @@ const TEST_CASES: SynthesisTestCase[] = [
 
 async function runSynthesisTest(
   llmClient: LLMClient,
+  judge: LLMJudge,
   testCase: SynthesisTestCase
 ): Promise<{
   success: boolean;
   proposals: Proposal[];
   tensions: any[];
-  constraintResults: { constraint: string; satisfied: boolean; foundKeywords: string[] }[];
+  judgeEvaluation: any;
   rawOutput: string;
 }> {
+
+  // Set logging context
+  setLogContext({
+    phase: 'synthesis-test',
+    scenarioId: testCase.id
+  });
 
   // Build a fake collaboration with the known constraints
   const participants: Participant[] = [];
@@ -222,42 +230,29 @@ async function runSynthesisTest(
       success: false,
       proposals: [],
       tensions: [],
-      constraintResults: [],
+      judgeEvaluation: { overallPass: false, summary: 'Failed to parse JSON' },
       rawOutput: response.content
     };
   }
 
-  // Validate: check if each constraint's keywords appear in proposals
-  const allProposalText = synthesis.proposals
-    .map(p => `${p.question} ${p.proposal} ${p.rationale} ${(p.addressedConcerns || []).join(' ')}`)
-    .join(' ')
-    .toLowerCase();
-
-  const allTensionText = synthesis.tensions
-    .map(t => `${t.description} ${(t.constraintsInvolved || []).join(' ')} ${(t.possibleResolutions || []).join(' ')}`)
-    .join(' ')
-    .toLowerCase();
-
-  const combinedText = allProposalText + ' ' + allTensionText;
-
-  const constraintResults = testCase.validationKeywords.map(vk => {
-    const foundKeywords = vk.keywords.filter(kw =>
-      combinedText.includes(kw.toLowerCase())
-    );
-    return {
-      constraint: vk.constraint,
-      satisfied: foundKeywords.length > 0,
-      foundKeywords
-    };
+  // Use LLM-as-judge to evaluate
+  setLogContext({
+    phase: 'judge-synthesis',
+    scenarioId: testCase.id
   });
 
-  const allSatisfied = constraintResults.every(r => r.satisfied);
+  const judgeEvaluation = await judge.evaluate(
+    RUBRICS.synthesis,
+    { collaboration },
+    synthesis,
+    testCase.expectedBehavior
+  );
 
   return {
-    success: allSatisfied,
+    success: judgeEvaluation.overallPass,
     proposals: synthesis.proposals,
     tensions: synthesis.tensions,
-    constraintResults,
+    judgeEvaluation,
     rawOutput: response.content
   };
 }
@@ -269,8 +264,6 @@ async function runSynthesisTest(
 async function main() {
   const args = process.argv.slice(2);
   const testId = args[0];
-
-  const llmClient = new LLMClient();
 
   // Select test cases
   let testCases = TEST_CASES;
@@ -285,9 +278,21 @@ async function main() {
   }
 
   console.log('================================================================================');
-  console.log('SYNTHESIS-ONLY TEST HARNESS');
+  console.log('SYNTHESIS TEST HARNESS (LLM-as-Judge)');
   console.log('================================================================================');
   console.log(`Running ${testCases.length} test(s)\n`);
+
+  // Start logging session
+  startNewSession('synthesis-tests-judge');
+
+  // Initialize LLM client for component under test
+  const llmClient = new LLMClient();
+  await llmClient.initializeQuota('llama-3.1-8b-instant');
+
+  // Initialize LLM judge (uses more capable model)
+  const judgeClient = new LLMClient();
+  await judgeClient.initializeQuota('llama-3.3-70b-versatile');
+  const judge = new LLMJudge(judgeClient);
 
   const results: { test: SynthesisTestCase; result: Awaited<ReturnType<typeof runSynthesisTest>> }[] = [];
 
@@ -302,7 +307,7 @@ async function main() {
     }
 
     try {
-      const result = await runSynthesisTest(llmClient, testCase);
+      const result = await runSynthesisTest(llmClient, judge, testCase);
       results.push({ test: testCase, result });
 
       // Print results
@@ -310,6 +315,10 @@ async function main() {
       for (const p of result.proposals) {
         console.log(`  Q: ${p.question}`);
         console.log(`  A: ${p.proposal}`);
+        console.log(`  Rationale: ${p.rationale}`);
+        if (p.addressedConcerns && p.addressedConcerns.length > 0) {
+          console.log(`  Addressed Concerns: ${p.addressedConcerns.join(', ')}`);
+        }
         console.log('');
       }
 
@@ -320,13 +329,28 @@ async function main() {
         }
       }
 
-      console.log(`\n--- Constraint Validation ---`);
-      for (const cr of result.constraintResults) {
-        const icon = cr.satisfied ? '✅' : '❌';
-        const keywords = cr.satisfied
-          ? `(found: ${cr.foundKeywords.join(', ')})`
-          : '(no keywords found)';
-        console.log(`  ${icon} ${cr.constraint} ${keywords}`);
+      console.log(`\n--- Judge Evaluation ---`);
+      console.log(`Overall: ${result.judgeEvaluation.overallPass ? '✅ PASS' : '❌ FAIL'}`);
+      console.log(`Summary: ${result.judgeEvaluation.summary}`);
+
+      console.log(`\nCriteria Results:`);
+      for (const criterion of result.judgeEvaluation.criteriaResults) {
+        const icon = criterion.pass ? '✅' : '❌';
+        console.log(`  ${icon} ${criterion.criterionId}: ${criterion.pass ? 'PASS' : 'FAIL'}`);
+        console.log(`     ${criterion.reasoning}`);
+        if (criterion.evidence) {
+          console.log(`     Evidence: "${criterion.evidence}"`);
+        }
+        if (criterion.score !== undefined) {
+          console.log(`     Score: ${criterion.score}`);
+        }
+      }
+
+      if (result.judgeEvaluation.criticalFailures.length > 0) {
+        console.log(`\nCritical Failures:`);
+        for (const failure of result.judgeEvaluation.criticalFailures) {
+          console.log(`  - ${failure}`);
+        }
       }
 
       console.log(`\n${'='.repeat(40)}`);
@@ -341,7 +365,7 @@ async function main() {
           success: false,
           proposals: [],
           tensions: [],
-          constraintResults: [],
+          judgeEvaluation: { overallPass: false, summary: String(error) },
           rawOutput: String(error)
         }
       });
@@ -349,25 +373,26 @@ async function main() {
   }
 
   // Summary
-  console.log(`\n${'='.repeat(80)}`);
-  console.log('SUMMARY');
-  console.log(`${'='.repeat(80)}`);
-
   const passed = results.filter(r => r.result.success).length;
   const total = results.length;
 
-  console.log(`\nPassed: ${passed}/${total} (${(passed/total*100).toFixed(0)}%)`);
+  console.log(`\n${'='.repeat(80)}`);
+  console.log('SUMMARY');
+  console.log(`${'='.repeat(80)}`);
+  console.log(`\nPassed: ${passed}/${total} (${(passed / total * 100).toFixed(0)}%)`);
 
+  console.log(`\nResults by Test:`);
   for (const { test, result } of results) {
     const icon = result.success ? '✅' : '❌';
-    const failedConstraints = result.constraintResults
-      .filter(cr => !cr.satisfied)
-      .map(cr => cr.constraint);
-    const failureInfo = failedConstraints.length > 0
-      ? ` - Missing: ${failedConstraints.join(', ')}`
-      : '';
-    console.log(`  ${icon} ${test.id}: ${test.name}${failureInfo}`);
+    console.log(`  ${icon} ${test.id}: ${test.name}`);
+    if (!result.success && result.judgeEvaluation.criticalFailures) {
+      for (const failure of result.judgeEvaluation.criticalFailures) {
+        console.log(`      - ${failure}`);
+      }
+    }
   }
+
+  process.exit(passed === total ? 0 : 1);
 }
 
 main().catch(error => {

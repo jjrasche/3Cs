@@ -6,6 +6,8 @@
  *
  * This is CRITICAL because it's the constraint validator - if this is wrong,
  * the whole system fails to catch violations.
+ *
+ * Uses LLM-as-judge for semantic evaluation instead of keyword heuristics.
  */
 
 import * as dotenv from 'dotenv';
@@ -15,6 +17,7 @@ import * as path from 'path';
 dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 import { LLMClient, setLogContext, startNewSession } from '../framework/llm-client';
+import { LLMJudge, RUBRICS } from '../framework/llm-judge';
 import { ResponseDecider } from '../simulation/persona-player';
 import { Persona } from '../simulation/types';
 
@@ -46,12 +49,8 @@ interface ResponseDecisionTestCase {
     concerns: string[];
   };
 
-  // Expected outcome
-  expected: {
-    type: 'accept' | 'accept-with-reservations' | 'object' | 'opt-out';
-    nonNegotiablesSatisfied: boolean;
-    reasoning?: string; // Keywords that should appear in reasoning
-  };
+  // Expected behavior (for judge)
+  expectedBehavior: string;
 }
 
 const TEST_CASES: ResponseDecisionTestCase[] = [
@@ -97,11 +96,10 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
       highlights: ['100% vegan menu', 'Direct bus access'],
       concerns: []
     },
-    expected: {
-      type: 'accept',
-      nonNegotiablesSatisfied: true
-      // No strict reasoning check - LLM's explanation may vary
-    }
+    expectedBehavior: `All non-negotiables are satisfied (vegan + transit), so:
+- Response type should be "accept"
+- nonNegotiablesSatisfied should be true
+- Reasoning should explain that both critical constraints are met`
   },
 
   // =============================================================================
@@ -139,11 +137,10 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
       highlights: [],
       concerns: ['Not a vegan restaurant', 'Only has vegetarian options']
     },
-    expected: {
-      type: 'object',
-      nonNegotiablesSatisfied: false,
-      reasoning: 'vegan|steakhouse'
-    }
+    expectedBehavior: `Non-negotiable vegan requirement is violated (steakhouse ≠ vegan), so:
+- Response type should be "object"
+- nonNegotiablesSatisfied should be false
+- Reasoning should explain the vegan requirement violation`
   },
 
   // =============================================================================
@@ -181,11 +178,10 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
       highlights: ['Plant-based menu'],
       concerns: ['Says vegetarian not vegan', 'May have dairy products']
     },
-    expected: {
-      type: 'object',
-      nonNegotiablesSatisfied: false,
-      reasoning: 'vegan|vegetarian'
-    }
+    expectedBehavior: `Vegan requirement not clearly met (vegetarian ≠ vegan), so:
+- Response type should be "object"
+- nonNegotiablesSatisfied should be false
+- Reasoning should note that vegetarian doesn't guarantee vegan`
   },
 
   // =============================================================================
@@ -230,11 +226,10 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
       highlights: ['Good vegetarian menu'],
       concerns: ['Price is higher than your $20 budget']
     },
-    expected: {
-      type: 'accept-with-reservations',
-      nonNegotiablesSatisfied: true,
-      reasoning: 'budget|expensive'
-    }
+    expectedBehavior: `Non-negotiable (vegetarian) is met but preference (budget) is not, so:
+- Response type should be "accept-with-reservations"
+- nonNegotiablesSatisfied should be true
+- Reasoning should note the budget concern while accepting the vegetarian requirement is met`
   },
 
   // =============================================================================
@@ -272,11 +267,10 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
       highlights: [],
       concerns: ['No mention of allergen safety', 'Could be unsafe for your nut allergy']
     },
-    expected: {
-      type: 'object',
-      nonNegotiablesSatisfied: false,
-      reasoning: 'allergen|nut|labeling'
-    }
+    expectedBehavior: `Critical safety constraint (allergen labeling) not addressed, so:
+- Response type should be "object"
+- nonNegotiablesSatisfied should be false
+- Reasoning should emphasize the safety concern and lack of allergen control`
   },
 
   // =============================================================================
@@ -321,11 +315,10 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
       highlights: ['Garage parking available'],
       concerns: ['Ends at 10pm, you need to leave by 8pm']
     },
-    expected: {
-      type: 'object',
-      nonNegotiablesSatisfied: false,
-      reasoning: '8pm|10pm|childcare'
-    }
+    expectedBehavior: `One non-negotiable (parking) is met but another (8pm end time) is violated, so:
+- Response type should be "object"
+- nonNegotiablesSatisfied should be false
+- Reasoning should explain that the timing constraint makes this impossible despite parking being available`
   }
 ];
 
@@ -336,13 +329,15 @@ const TEST_CASES: ResponseDecisionTestCase[] = [
 interface TestResult {
   testCase: ResponseDecisionTestCase;
   actualResponse: any;
+  judgeEvaluation: any;
   pass: boolean;
   failures: string[];
 }
 
 async function runTest(
   testCase: ResponseDecisionTestCase,
-  decider: ResponseDecider
+  decider: ResponseDecider,
+  judge: LLMJudge
 ): Promise<TestResult> {
   const failures: string[] = [];
 
@@ -359,51 +354,57 @@ async function runTest(
     testCase.proposal
   );
 
-  // Validate response type
-  if (response.type !== testCase.expected.type) {
-    failures.push(`Expected type "${testCase.expected.type}" but got "${response.type}"`);
-  }
+  // Use LLM-as-judge to evaluate
+  setLogContext({
+    phase: 'judge-response-decision',
+    personaId: testCase.persona.id
+  });
 
-  // Validate nonNegotiablesSatisfied flag
-  if (response.nonNegotiablesSatisfied !== testCase.expected.nonNegotiablesSatisfied) {
-    failures.push(
-      `Expected nonNegotiablesSatisfied=${testCase.expected.nonNegotiablesSatisfied} but got ${response.nonNegotiablesSatisfied}`
-    );
-  }
+  const judgeEvaluation = await judge.evaluate(
+    RUBRICS.responseDecision,
+    {
+      persona: testCase.persona,
+      contextualization: testCase.contextualization,
+      proposal: testCase.proposal
+    },
+    response,
+    testCase.expectedBehavior
+  );
 
-  // Validate reasoning contains expected keywords
-  if (testCase.expected.reasoning) {
-    const regex = new RegExp(testCase.expected.reasoning, 'i');
-    if (!regex.test(response.reasoning)) {
-      failures.push(
-        `Expected reasoning to match pattern "${testCase.expected.reasoning}" but got: "${response.reasoning}"`
-      );
-    }
+  // Check if evaluation passed
+  if (!judgeEvaluation.overallPass) {
+    failures.push(...judgeEvaluation.criticalFailures.map(f => `Critical failure: ${f}`));
   }
 
   return {
     testCase,
     actualResponse: response,
-    pass: failures.length === 0,
+    judgeEvaluation,
+    pass: judgeEvaluation.overallPass,
     failures
   };
 }
 
 async function main() {
   console.log('================================================================================');
-  console.log('RESPONSE DECISION TEST HARNESS');
+  console.log('RESPONSE DECISION TEST HARNESS (LLM-as-Judge)');
   console.log('================================================================================');
   console.log(`Running ${TEST_CASES.length} test(s)\n`);
 
   // Start logging session
-  startNewSession('response-decision-tests');
+  startNewSession('response-decision-tests-judge');
 
-  // Initialize LLM client
+  // Initialize LLM client for component under test
   const llmClient = new LLMClient();
   await llmClient.initializeQuota('llama-3.1-8b-instant');
 
   // Initialize response decider
   const decider = new ResponseDecider(llmClient);
+
+  // Initialize LLM judge
+  const judgeClient = new LLMClient();
+  await judgeClient.initializeQuota('llama-3.3-70b-versatile');
+  const judge = new LLMJudge(judgeClient);
 
   // Run tests
   const results: TestResult[] = [];
@@ -420,10 +421,10 @@ async function main() {
     }
     console.log(`\nProposal: ${testCase.proposal.proposal}`);
 
-    const result = await runTest(testCase, decider);
+    const result = await runTest(testCase, decider, judge);
     results.push(result);
 
-    console.log(`\n--- Response ---`);
+    console.log(`\n--- Response Decision Output ---`);
     console.log(`Type: ${result.actualResponse.type}`);
     console.log(`Non-Negotiables Satisfied: ${result.actualResponse.nonNegotiablesSatisfied}`);
     console.log(`Reasoning: ${result.actualResponse.reasoning}`);
@@ -437,15 +438,32 @@ async function main() {
       }
     }
 
+    console.log(`\n--- Judge Evaluation ---`);
+    console.log(`Overall: ${result.judgeEvaluation.overallPass ? '✅ PASS' : '❌ FAIL'}`);
+    console.log(`Summary: ${result.judgeEvaluation.summary}`);
+
+    console.log(`\nCriteria Results:`);
+    for (const criterion of result.judgeEvaluation.criteriaResults) {
+      const icon = criterion.pass ? '✅' : '❌';
+      console.log(`  ${icon} ${criterion.criterionId}: ${criterion.pass ? 'PASS' : 'FAIL'}`);
+      console.log(`     ${criterion.reasoning}`);
+      if (criterion.evidence) {
+        console.log(`     Evidence: "${criterion.evidence}"`);
+      }
+    }
+
+    if (result.judgeEvaluation.criticalFailures.length > 0) {
+      console.log(`\n⚠️  Critical Failures:`);
+      for (const failure of result.judgeEvaluation.criticalFailures) {
+        console.log(`  - ${failure}`);
+      }
+    }
+
     console.log(`\n${'='.repeat(40)}`);
     if (result.pass) {
       console.log(`RESULT: ✅ PASS`);
     } else {
       console.log(`RESULT: ❌ FAIL`);
-      console.log(`\nFailures:`);
-      for (const failure of result.failures) {
-        console.log(`  - ${failure}`);
-      }
     }
     console.log(`${'='.repeat(40)}`);
   }
